@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Phóng to ảnh hiệu ứng đẹp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #020617;
+      --accent: #38bdf8;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px 16px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #1e293b, #020617);
+      color: var(--text);
+    }
+
+    .wrapper {
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      margin-bottom: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .img-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(18px);
+    }
+
+    .img-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: zoom-in;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border 0.35s ease;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .img-wrapper::after {
+      content: "Nhấp để phóng to";
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      color: #e5e7eb;
+      font-size: 11px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      pointer-events: none;
+    }
+
+    .img-wrapper:hover::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .img-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      transition: transform 0.45s ease;
+      transform-origin: center center;
+    }
+
+    /* Hiệu ứng hover */
+    .img-wrapper:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.95);
+      border-color: rgba(56, 189, 248, 0.8);
+    }
+
+    .img-wrapper:hover img {
+      transform: scale(1.12);
+    }
+
+    .img-meta {
+      margin-top: 10px;
+    }
+
+    .img-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .img-caption {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ===== POPUP PHÓNG TO ===== */
+    .image-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+      z-index: 999;
+    }
+
+    .image-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .overlay-inner {
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      transform: scale(0.94) translateY(8px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .image-overlay.open .overlay-inner {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .overlay-img-wrapper {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .overlay-img-wrapper img {
+      display: block;
+      max-width: 100%;
+      max-height: 70vh;
+      height: auto;
+    }
+
+    .overlay-meta {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .overlay-close {
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .overlay-close span {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #e0f2fe;
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      font-size: 11px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      .overlay-inner {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <h1>Phóng to ảnh với hiệu ứng đẹp</h1>
+    <p class="subtitle">
+      Di chuột để xem hiệu ứng zoom mềm, nhấp vào ảnh để mở lớn toàn màn hình.
+    </p>
+
+    <div class="gallery">
+      <!-- ẢNH 1 -->
+      <div class="img-card">
+        <div class="img-wrapper">
+          <!-- ĐỔI src THÀNH ẢNH CỦA BẠN -->
+          <img src="https://images.pexels.com/photos/845434/pexels-photo-845434.jpeg?auto=compress&cs=tinysrgb&w=800"
+            alt="Ảnh demo 1" class="zoomable" data-title="Ảnh demo 1" />
+        </div>
+        <div class="img-meta">
+          <div class="img-title">Ảnh demo 1</div>
+          <div class="img-caption">Ví dụ áp dụng cho ảnh sản phẩm, mũ, áo, phụ kiện...</div>
+        </div>
+      </div>
+
+      <!-- ẢNH 2 -->
+      <div class="img-card">
+        <div class="img-wrapper">
+          <img src="https://images.pexels.com/photos/1038916/pexels-photo-1038916.jpeg?auto=compress&cs=tinysrgb&w=800"
+            alt="Ảnh demo 2" class="zoomable" data-title="Ảnh demo 2" />
+        </div>
+        <div class="img-meta">
+          <div class="img-title">Ảnh demo 2</div>
+          <div class="img-caption">Bạn có thể dùng làm gallery chi tiết sản phẩm.</div>
+        </div>
+      </div>
+
+      <!-- ẢNH 3 -->
+      <div class="img-card">
+        <div class="img-wrapper">
+          <img src="https://images.pexels.com/photos/2747596/pexels-photo-2747596.jpeg?auto=compress&cs=tinysrgb&w=800"
+            alt="Ảnh demo 3" class="zoomable" data-title="Ảnh demo 3" />
+        </div>
+        <div class="img-meta">
+          <div class="img-title">Ảnh demo 3</div>
+          <div class="img-caption">Thay link ảnh này bằng ảnh mũ/ sản phẩm của bạn.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP PHÓNG TO -->
+  <div class="image-overlay" id="imageOverlay">
+    <div class="overlay-inner">
+      <div class="overlay-img-wrapper">
+        <img src="" alt="Xem lớn" id="overlayImg" />
+      </div>
+      <div class="overlay-meta">
+        <div class="badge">
+          <div class="badge-dot"></div>
+          <span>Zoom HD mượt mà</span>
+        </div>
+        <button class="overlay-close" id="overlayClose">
+          ✕ Đóng <span>(Esc)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lấy các phần tử
+    const zoomableImages = document.querySelectorAll(".zoomable");
+    const overlay = document.getElementById("imageOverlay");
+    const overlayImg = document.getElementById("overlayImg");
+    const overlayClose = document.getElementById("overlayClose");
+
+    // Hàm mở popup
+    function openOverlay(src, alt) {
+      overlayImg.src = src;
+      overlayImg.alt = alt || "Xem lớn";
+      overlay.classList.add("open");
+      document.body.style.overflow = "hidden"; // khóa scroll nền
+    }
+
+    // Hàm đóng popup
+    function closeOverlay() {
+      overlay.classList.remove("open");
+      document.body.style.overflow = ""; // mở lại scroll
+    }
+
+    // Gắn sự kiện click cho ảnh
+    zoomableImages.forEach((img) => {
+      img.addEventListener("click", () => {
+        openOverlay(img.src, img.alt || img.dataset.title);
+      });
+    });
+
+    // Click nút Đóng
+    overlayClose.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeOverlay();
+    });
+
+    // Click ra ngoài khung ảnh cũng tắt
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        closeOverlay();
+      }
+    });
+
+    // Bấm ESC để tắt
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("open")) {
+        closeOverlay();
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Nhập / Xuất kho</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .movement-lines-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .movement-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .movement-line {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) 120px 40px;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .movement-line-variant {
+      position: relative;
+    }
+
+    .movement-line-qty-input {
+      width: 100%;
+    }
+
+    .movement-line-remove {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fef2f2;
+      color: #b91c1c;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .movement-line-remove:hover {
+      background: #fee2e2;
+    }
+
+    .visually-hidden-select {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .variant-picker {
+      position: relative;
+    }
+
+    .variant-picker-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .variant-picker-selected {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .variant-picker-selected-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .variant-picker-selected-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .variant-picker-selected-name {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .variant-picker-selected-meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .variant-selected-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.15);
+      flex-shrink: 0;
+    }
+
+    .variant-selected-meta-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .variant-picker-toggle-icon {
+      font-size: 16px;
+      color: var(--muted);
+    }
+
+    .variant-picker-menu {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      max-height: 260px;
+      overflow-y: auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+      border: 1px solid #e5e7eb;
+      padding: 4px;
+      display: none;
+    }
+
+    .variant-picker.open .variant-picker-menu {
+      display: block;
+    }
+
+    .variant-picker-item {
+      display: flex;
+      align-items: center;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      gap: 8px;
+    }
+
+    .variant-picker-item:hover {
+      background: #f3f4f6;
+    }
+
+    .variant-picker-item-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .variant-picker-item-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      flex-shrink: 0;
+    }
+
+    .variant-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.15);
+      flex-shrink: 0;
+    }
+
+    .variant-picker-item-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .variant-picker-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .variant-picker-item-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .variant-picker-item-qty {
+      font-size: 12px;
+      white-space: nowrap;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+      .movement-line {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        Quản Lý HT.ver1
+      </div>
+
+      <div class="nav-group-title">Chức năng</div>
+      <div class="nav">
+        <a href="/index.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                <path d="M4 10h16M10 4v16"></path>
+              </svg>
+            </span>
+            Sản phẩm
+          </button>
+        </a>
+
+        <a href="/movements.html" style="text-decoration:none;">
+          <button class="nav-btn active">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 5v10M8 5l-3 3M8 5l3 3"></path>
+                <path d="M16 19V9M16 19l-3-3M16 19l3-3"></path>
+              </svg>
+            </span>
+            Nhập / Xuất kho
+          </button>
+        </a>
+
+        <a href="/attributes.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3a8 8 0 0 0-8 8 5 5 0 0 0 5 5h1.2a1.8 1.8 0 0 1 0 3.6A8 8 0 0 0 20 13 8 8 0 0 0 12 3z">
+                </path>
+                <circle cx="9" cy="10" r="0.9"></circle>
+                <circle cx="12" cy="8" r="0.9"></circle>
+                <circle cx="15" cy="10" r="0.9"></circle>
+                <circle cx="15" cy="13" r="0.9"></circle>
+              </svg>
+            </span>
+            Phân loại
+          </button>
+        </a>
+
+        <a href="/history.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            Lịch sử
+          </button>
+        </a>
+
+        <a href="/upload.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 4v9"></path>
+                <path d="M9 7l3-3 3 3"></path>
+                <rect x="5" y="14" width="14" height="6" rx="2"></rect>
+              </svg>
+            </span>
+            Upload ảnh
+          </button>
+        </a>
+      </div>
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+      <h1>Nhập / Xuất kho</h1>
+      <p class="subtitle">Điều chỉnh tồn kho theo từng biến thể.</p>
+
+      <section class="screen active">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Tạo phiếu nhập / xuất</div>
+              <div class="card-subtitle">Chọn đúng sản phẩm &amp; biến thể trước khi lưu.</div>
+            </div>
+          </div>
+
+          <form id="movementForm">
+            <div class="form-grid">
+              <div>
+                <label>Loại phiếu *</label>
+                <select id="movementType" required>
+                  <option value="IN">Nhập kho</option>
+                  <option value="OUT">Xuất kho</option>
+                </select>
+              </div>
+              <div>
+                <label>Người thực hiện *</label>
+                <input type="text" id="movementUser" required />
+              </div>
+              <div>
+                <label>Thời gian *</label>
+                <!-- có cả giây -->
+                <input type="datetime-local" id="movementTime" required step="1" />
+              </div>
+
+              <!-- Khối nhiều dòng biến thể -->
+              <div style="grid-column:1/-1;">
+                <label>Sản phẩm / Màu / Size *</label>
+                <div class="form-grid" style="margin-bottom:8px;">
+                  <div>
+                    <label style="font-size:12px;">Tìm sản phẩm (gõ tên)</label>
+                    <input type="text" id="productSearchInput" placeholder="Nhập tên sản phẩm..." />
+                  </div>
+                  <div>
+                    <label style="font-size:12px;">Lọc theo sản phẩm</label>
+                    <select id="productSelect">
+                      <option value="">Tất cả sản phẩm có biến thể</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="movement-lines-header">
+                  <span class="muted">Thêm nhiều biến thể trong cùng một phiếu để thao tác nhanh hơn.</span>
+                  <button type="button" class="btn-outline" id="btnAddLine">+ Thêm dòng</button>
+                </div>
+                <div class="movement-lines" id="movementLinesContainer">
+                  <!-- JS thêm các dòng tại đây -->
+                </div>
+              </div>
+
+              <div style="grid-column:1/-1;">
+                <label>Ghi chú</label>
+                <textarea id="movementNote"></textarea>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <button type="button" class="btn-outline" id="btnClearMovementForm">Xoá trắng</button>
+              <button type="submit" class="btn-primary">Lưu phiếu</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = "";
+    let PRODUCTS = [];
+    let COLOR_MAP = {}; // name (lowercase) -> color_code
+
+    // đồng hồ realtime
+    let movementTimeLocked = false;
+    let movementTimeIntervalId = null;
+
+    function setMovementTimeNow() {
+      const t = document.getElementById("movementTime");
+      if (!t) return;
+      const now = new Date();
+      const off = now.getTimezoneOffset();
+      const local = new Date(now.getTime() - off * 60000);
+      // YYYY-MM-DDTHH:MM:SS
+      const iso = local.toISOString().slice(0, 19);
+      t.value = iso;
+    }
+
+    function startMovementLiveClock() {
+      const t = document.getElementById("movementTime");
+      if (!t) return;
+      if (movementTimeIntervalId !== null) return; // tránh tạo 2 interval
+
+      // khi user chạm/sửa thì khoá tự động
+      t.addEventListener("input", () => {
+        movementTimeLocked = true;
+      });
+      t.addEventListener("change", () => {
+        movementTimeLocked = true;
+      });
+
+      movementTimeIntervalId = setInterval(() => {
+        if (movementTimeLocked) return;
+        setMovementTimeNow();
+      }, 1000);
+    }
+
+    function getMovementType() {
+      const typeEl = document.getElementById("movementType");
+      return typeEl ? typeEl.value : "IN";
+    }
+
+    function getFilteredProductsForMovement() {
+      const type = getMovementType();
+      const searchInput = document.getElementById("productSearchInput");
+      const selectEl = document.getElementById("productSelect");
+      const search = searchInput ? (searchInput.value || "").toLowerCase().trim() : "";
+      const selectedId = selectEl ? (selectEl.value || "") : "";
+
+      return (PRODUCTS || []).filter(p => {
+        const variants = p.variants || [];
+        if (!variants.length) return false;
+
+        if (search && !(p.name || "").toLowerCase().includes(search)) return false;
+        if (selectedId && String(p.id) !== String(selectedId)) return false;
+
+        if (type === "OUT") {
+          const hasStock = variants.some(v => (v.quantity || 0) > 0);
+          if (!hasStock) return false;
+        }
+        return true;
+      });
+    }
+
+    function getFilteredVariantsForMovement() {
+      const type = getMovementType();
+      const result = [];
+      const products = getFilteredProductsForMovement();
+      products.forEach(p => {
+        (p.variants || []).forEach(v => {
+          if (type === "OUT" && (!v.quantity || v.quantity <= 0)) {
+            return;
+          }
+          result.push({ product: p, variant: v });
+        });
+      });
+      return result;
+    }
+
+    function buildVariantLabel(product, variant) {
+      const variantText = [variant.color, variant.size].filter(Boolean).join(" / ");
+      if (variantText) return `${product.name} (${variantText})`;
+      return `${product.name} (Biến thể #${variant.id})`;
+    }
+
+    function findVariantById(id) {
+      const vid = Number(id);
+      if (!vid) return null;
+      for (const p of PRODUCTS) {
+        const list = p.variants || [];
+        for (const v of list) {
+          if (Number(v.id) === vid) {
+            return { product: p, variant: v };
+          }
+        }
+      }
+      return null;
+    }
+
+    function resetVariantSelectedDisplay(textEl, imgEl) {
+      if (imgEl) {
+        imgEl.src = "";
+        imgEl.style.display = "none";
+      }
+      if (textEl) {
+        const nameEl = textEl.querySelector(".variant-picker-selected-name");
+        const metaEl = textEl.querySelector(".variant-picker-selected-meta");
+        const metaTextEl = metaEl ? metaEl.querySelector(".variant-selected-meta-text") : null;
+        const colorDotEl = metaEl ? metaEl.querySelector(".variant-selected-color-dot") : null;
+
+        if (nameEl) nameEl.textContent = "Chọn biến thể";
+        if (metaTextEl) metaTextEl.textContent = "Sản phẩm / Màu / Size";
+        if (metaEl) metaEl.style.color = "var(--muted)";
+        if (colorDotEl) {
+          colorDotEl.style.display = "none";
+          colorDotEl.style.backgroundColor = "transparent";
+        }
+      }
+    }
+
+    function tintByQuantity(q, element) {
+      if (!element) return;
+      if (q === null || Number.isNaN(q)) {
+        element.style.color = "var(--muted)";
+        return;
+      }
+      if (q === 0) {
+        element.style.color = "#dc2626"; // đỏ
+      } else if (q >= 1 && q <= 20) {
+        element.style.color = "#ca8a04"; // vàng
+      } else {
+        element.style.color = "#16a34a"; // xanh lá
+      }
+    }
+
+    function updateVariantSelectedDisplay(product, variant, textEl, imgEl) {
+      if (!textEl) return;
+      const nameEl = textEl.querySelector(".variant-picker-selected-name");
+      const metaEl = textEl.querySelector(".variant-picker-selected-meta");
+      const metaTextEl = metaEl ? metaEl.querySelector(".variant-selected-meta-text") : null;
+      const colorDotEl = metaEl ? metaEl.querySelector(".variant-selected-color-dot") : null;
+
+      if (nameEl) {
+        nameEl.textContent = product.name || "";
+      }
+      if (metaTextEl && metaEl) {
+        const variantText = [variant.color, variant.size].filter(Boolean).join(" / ");
+        const qty = typeof variant.quantity === "number" ? variant.quantity : null;
+        const qtyText = qty !== null ? ` • Tồn: ${qty}` : "";
+        metaTextEl.textContent = (variantText || `Biến thể #${variant.id}`) + qtyText;
+        tintByQuantity(qty, metaEl);
+      }
+
+      if (colorDotEl) {
+        const colorKey = (variant.color || "").toLowerCase().trim();
+        const colorCode = COLOR_MAP[colorKey];
+        if (colorCode) {
+          colorDotEl.style.display = "inline-block";
+          colorDotEl.style.backgroundColor = colorCode;
+        } else {
+          colorDotEl.style.display = "none";
+        }
+      }
+
+      if (imgEl) {
+        if (variant.img) {
+          imgEl.src = variant.img;
+          imgEl.style.display = "";
+        } else {
+          imgEl.src = "";
+          imgEl.style.display = "none";
+        }
+      }
+    }
+
+    function closeAllVariantMenus(except) {
+      document.querySelectorAll(".variant-picker").forEach(p => {
+        if (p !== except) p.classList.remove("open");
+      });
+    }
+
+    function createVariantMenuItem(p, v) {
+      const item = document.createElement("div");
+      item.className = "variant-picker-item";
+      item.dataset.id = v.id;
+
+      const main = document.createElement("div");
+      main.className = "variant-picker-item-main";
+
+      const img = document.createElement("img");
+      img.className = "variant-picker-item-img";
+      if (v.img) {
+        img.src = v.img;
+      } else {
+        img.style.display = "none";
+      }
+
+      const colorDot = document.createElement("span");
+      colorDot.className = "variant-color-dot";
+      const colorKey = (v.color || "").toLowerCase().trim();
+      const colorCode = COLOR_MAP[colorKey];
+      if (colorCode) {
+        colorDot.style.backgroundColor = colorCode;
+      } else {
+        colorDot.style.display = "none";
+      }
+
+      const textWrap = document.createElement("div");
+      textWrap.className = "variant-picker-item-text";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "variant-picker-item-name";
+      nameEl.textContent = p.name || "";
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "variant-picker-item-meta";
+      const variantText = [v.color, v.size].filter(Boolean).join(" / ");
+      metaEl.textContent = variantText || `Biến thể #${v.id}`;
+
+      textWrap.appendChild(nameEl);
+      textWrap.appendChild(metaEl);
+
+      main.appendChild(img);
+      main.appendChild(colorDot);
+      main.appendChild(textWrap);
+
+      const qtyEl = document.createElement("div");
+      qtyEl.className = "variant-picker-item-qty";
+
+      const q = typeof v.quantity === "number" ? v.quantity : null;
+      if (q === null || Number.isNaN(q)) {
+        qtyEl.textContent = "Tồn: -";
+        qtyEl.style.color = "var(--muted)";
+      } else {
+        qtyEl.textContent = `Tồn: ${q}`;
+        tintByQuantity(q, qtyEl);
+      }
+
+      item.appendChild(main);
+      item.appendChild(qtyEl);
+
+      return item;
+    }
+
+    function addMovementLine() {
+      const container = document.getElementById("movementLinesContainer");
+      if (!container) return;
+
+      const line = document.createElement("div");
+      line.className = "movement-line";
+
+      line.innerHTML = `
+        <div class="movement-line-variant">
+          <select class="movement-line-variant-select visually-hidden-select">
+            <option value="">-- Chọn biến thể --</option>
+          </select>
+          <div class="variant-picker">
+            <button type="button" class="variant-picker-toggle">
+              <div class="variant-picker-selected">
+                <img class="variant-picker-selected-img" alt="">
+                <div class="variant-picker-selected-text">
+                  <div class="variant-picker-selected-name">Chọn biến thể</div>
+                  <div class="variant-picker-selected-meta">
+                    <span class="variant-selected-color-dot"></span>
+                    <span class="variant-selected-meta-text">Sản phẩm / Màu / Size</span>
+                  </div>
+                </div>
+              </div>
+              <span class="variant-picker-toggle-icon">▾</span>
+            </button>
+            <div class="variant-picker-menu"></div>
+          </div>
+        </div>
+        <div>
+          <input type="number" min="1" class="movement-line-qty-input" placeholder="Số lượng" />
+        </div>
+        <div>
+          <button type="button" class="movement-line-remove">×</button>
+        </div>
+      `;
+
+      container.appendChild(line);
+
+      const sel = line.querySelector(".movement-line-variant-select");
+      const picker = line.querySelector(".variant-picker");
+      const toggle = line.querySelector(".variant-picker-toggle");
+      const menu = line.querySelector(".variant-picker-menu");
+      const selectedTextEl = line.querySelector(".variant-picker-selected-text");
+      const selectedImgEl = line.querySelector(".variant-picker-selected-img");
+      const removeBtn = line.querySelector(".movement-line-remove");
+
+      if (!sel || !picker || !toggle || !menu || !selectedTextEl || !selectedImgEl || !removeBtn) return;
+
+      sel.innerHTML = '<option value="">-- Chọn biến thể --</option>';
+      menu.innerHTML = "";
+
+      const variantList = getFilteredVariantsForMovement();
+
+      variantList.forEach(({ product: p, variant: v }) => {
+        const label = buildVariantLabel(p, v);
+
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = label;
+        sel.appendChild(opt);
+
+        const item = createVariantMenuItem(p, v);
+
+        item.addEventListener("click", () => {
+          sel.value = String(v.id);
+          updateVariantSelectedDisplay(p, v, selectedTextEl, selectedImgEl);
+          picker.classList.remove("open");
+        });
+
+        menu.appendChild(item);
+      });
+
+      resetVariantSelectedDisplay(selectedTextEl, selectedImgEl);
+
+      toggle.addEventListener("click", () => {
+        closeAllVariantMenus(picker);
+        picker.classList.toggle("open");
+      });
+
+      removeBtn.addEventListener("click", () => {
+        const container = document.getElementById("movementLinesContainer");
+        if (!container) return;
+        if (container.querySelectorAll(".movement-line").length <= 1) {
+          sel.value = "";
+          line.querySelector(".movement-line-qty-input").value = "";
+          resetVariantSelectedDisplay(selectedTextEl, selectedImgEl);
+          return;
+        }
+        line.remove();
+      });
+    }
+
+    // giữ lại biến thể đã chọn dù filter thay đổi
+    function rebuildVariantPickerForLine(line) {
+      const sel = line.querySelector(".movement-line-variant-select");
+      const picker = line.querySelector(".variant-picker");
+      const menu = line.querySelector(".variant-picker-menu");
+      const selectedTextEl = line.querySelector(".variant-picker-selected-text");
+      const selectedImgEl = line.querySelector(".variant-picker-selected-img");
+      if (!sel || !picker || !menu || !selectedTextEl || !selectedImgEl) return;
+
+      const currentValue = sel.value;
+
+      const filteredList = getFilteredVariantsForMovement();
+
+      let extraCurrent = null;
+      if (currentValue) {
+        const found = filteredList.some(
+          ({ variant }) => String(variant.id) === String(currentValue)
+        );
+        if (!found) {
+          const pv = findVariantById(currentValue);
+          if (pv) {
+            extraCurrent = pv;
+          }
+        }
+      }
+
+      sel.innerHTML = '<option value="">-- Chọn biến thể --</option>';
+      menu.innerHTML = "";
+
+      const finalList = [];
+      if (extraCurrent) {
+        finalList.push(extraCurrent);
+      }
+      filteredList.forEach(item => {
+        if (
+          !extraCurrent ||
+          String(extraCurrent.variant.id) !== String(item.variant.id)
+        ) {
+          finalList.push(item);
+        }
+      });
+
+      let chosenProduct = null;
+      let chosenVariant = null;
+
+      finalList.forEach(({ product: p, variant: v }) => {
+        const label = buildVariantLabel(p, v);
+
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = label;
+        sel.appendChild(opt);
+
+        const item = createVariantMenuItem(p, v);
+        item.addEventListener("click", () => {
+          sel.value = String(v.id);
+          updateVariantSelectedDisplay(p, v, selectedTextEl, selectedImgEl);
+          picker.classList.remove("open");
+        });
+
+        menu.appendChild(item);
+
+        if (String(v.id) === String(currentValue)) {
+          chosenProduct = p;
+          chosenVariant = v;
+        }
+      });
+
+      if (chosenProduct && chosenVariant) {
+        sel.value = String(chosenVariant.id);
+        updateVariantSelectedDisplay(chosenProduct, chosenVariant, selectedTextEl, selectedImgEl);
+      } else {
+        sel.value = "";
+        resetVariantSelectedDisplay(selectedTextEl, selectedImgEl);
+      }
+    }
+
+    function refreshAllVariantPickers() {
+      const lines = Array.from(document.querySelectorAll(".movement-line"));
+      lines.forEach(rebuildVariantPickerForLine);
+    }
+
+    function clearMovementForm() {
+      const form = document.getElementById("movementForm");
+      if (form) form.reset();
+
+      const typeSel = document.getElementById("movementType");
+      if (typeSel) typeSel.value = "IN";
+
+      // reset đồng hồ: bắt đầu chạy lại từ now
+      movementTimeLocked = false;
+      setMovementTimeNow();
+
+      const searchInput = document.getElementById("productSearchInput");
+      if (searchInput) searchInput.value = "";
+
+      const selectEl = document.getElementById("productSelect");
+      if (selectEl) selectEl.value = "";
+
+      const container = document.getElementById("movementLinesContainer");
+      if (container) {
+        container.innerHTML = "";
+        addMovementLine();
+      }
+    }
+
+    async function loadProducts() {
+      const res = await fetch(API_BASE + "/api/products");
+      PRODUCTS = await res.json();
+
+      const selectEl = document.getElementById("productSelect");
+      if (selectEl) {
+        selectEl.innerHTML = '<option value="">Tất cả sản phẩm có biến thể</option>';
+        (PRODUCTS || []).forEach(p => {
+          const variants = p.variants || [];
+          if (!variants.length) return;
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = p.name || `Sản phẩm #${p.id}`;
+          selectEl.appendChild(opt);
+        });
+      }
+
+      const container = document.getElementById("movementLinesContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      addMovementLine();
+    }
+
+    async function loadColors() {
+      try {
+        const res = await fetch(API_BASE + "/api/attributes?type=color");
+        const data = await res.json();
+        COLOR_MAP = {};
+        (data || []).forEach(c => {
+          if (!c.name) return;
+          const key = c.name.toLowerCase().trim();
+          COLOR_MAP[key] = c.color_code || null;
+        });
+      } catch (err) {
+        console.error("Lỗi load màu:", err);
+      }
+    }
+
+    async function handleMovement(e) {
+      e.preventDefault();
+
+      const type = document.getElementById("movementType").value;
+      const user = document.getElementById("movementUser").value.trim();
+      const time = document.getElementById("movementTime").value;
+      const note = document.getElementById("movementNote").value.trim();
+
+      if (!["IN", "OUT"].includes(type)) {
+        alert("Loại phiếu không hợp lệ."); return;
+      }
+      if (!user) {
+        alert("Vui lòng nhập người thực hiện."); return;
+      }
+      if (!time) {
+        alert("Vui lòng chọn thời gian."); return;
+      }
+
+      const lineEls = Array.from(document.querySelectorAll(".movement-line"));
+      if (lineEls.length === 0) {
+        alert("Vui lòng thêm ít nhất 1 dòng sản phẩm."); return;
+      }
+
+      const lines = [];
+      for (const line of lineEls) {
+        const sel = line.querySelector(".movement-line-variant-select");
+        const qtyInput = line.querySelector(".movement-line-qty-input");
+        const variantId = sel ? sel.value : "";
+        const qty = qtyInput ? Number(qtyInput.value) : 0;
+
+        const hasAny = variantId || qty;
+        if (!hasAny) continue;
+
+        if (!variantId) {
+          alert("Có dòng chưa chọn biến thể."); return;
+        }
+        if (!qty || qty <= 0) {
+          alert("Có dòng chưa nhập số lượng hợp lệ."); return;
+        }
+
+        lines.push({ variantId: Number(variantId), quantity: qty, lineEl: line });
+      }
+
+      if (lines.length === 0) {
+        alert("Vui lòng nhập ít nhất 1 dòng hợp lệ."); return;
+      }
+
+      for (const line of lines) {
+        const body = {
+          variantId: line.variantId,
+          type,
+          quantity: line.quantity,
+          user,
+          time,
+          note: note || null
+        };
+
+        let res, data;
+        try {
+          res = await fetch(API_BASE + "/api/movements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+          data = await res.json();
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi kết nối server.");
+          return;
+        }
+
+        if (!res.ok) {
+          alert(data && data.error ? data.error : "Có lỗi khi lưu phiếu.");
+          return;
+        }
+      }
+
+      alert("Đã lưu phiếu nhập / xuất.");
+      clearMovementForm();
+      await loadProducts();
+      refreshAllVariantPickers();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      clearMovementForm();      // set now + 1 dòng trống
+      startMovementLiveClock(); // bật đồng hồ realtime
+
+      const btnAddLine = document.getElementById("btnAddLine");
+      if (btnAddLine) btnAddLine.addEventListener("click", () => addMovementLine());
+
+      const btnClear = document.getElementById("btnClearMovementForm");
+      if (btnClear) {
+        btnClear.addEventListener("click", () => {
+          clearMovementForm();
+          refreshAllVariantPickers();
+        });
+      }
+
+      const form = document.getElementById("movementForm");
+      if (form) form.addEventListener("submit", handleMovement);
+
+      const productSearchInput = document.getElementById("productSearchInput");
+      if (productSearchInput) {
+        productSearchInput.addEventListener("input", () => {
+          refreshAllVariantPickers();
+        });
+      }
+
+      const productSelect = document.getElementById("productSelect");
+      if (productSelect) {
+        productSelect.addEventListener("change", () => {
+          refreshAllVariantPickers();
+        });
+      }
+
+      const movementTypeEl = document.getElementById("movementType");
+      if (movementTypeEl) {
+        movementTypeEl.addEventListener("change", () => {
+          refreshAllVariantPickers();
+        });
+      }
+
+      document.addEventListener("click", (e) => {
+        const picker = e.target.closest(".variant-picker");
+        if (!picker) closeAllVariantMenus(null);
+      });
+
+      await loadColors();
+      await loadProducts();
+      refreshAllVariantPickers();
+    });
+  </script>
+</body>
+
+</html>

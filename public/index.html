@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Kho Online - Sản phẩm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS riêng cho chọn màu + filter -->
+  <style>
+    .color-picker {
+      position: relative;
+      font-size: 14px;
+    }
+
+    .color-picker-btn {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      background: #ffffff;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .color-picker-btn-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .color-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .color-name-short {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .color-picker-arrow {
+      font-size: 10px;
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .color-picker-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+      padding: 6px 0;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 40;
+      display: none;
+    }
+
+    .color-picker.open .color-picker-menu {
+      display: block;
+    }
+
+    .color-picker-option {
+      padding: 6px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-picker-option:hover {
+      background: #f3f4f6;
+    }
+
+    .color-picker-option-name {
+      font-size: 13px;
+    }
+
+    /* bảng sản phẩm cao hơn để thấy được nhiều dòng */
+    .product-table-wrap {
+      max-height: calc(100vh - 260px);
+      overflow-y: auto;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+      /* cho phép xuống dòng, tránh khung hẹp */
+      padding-bottom: 8px;
+    }
+
+    .filter-item {
+      flex: 0 0 auto;
+      min-width: 160px;
+    }
+
+    .filter-actions {
+      flex: 0 0 auto;
+    }
+
+    .filter-row label {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .filter-row input,
+    .filter-row select {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    /* màu tròn trong cột PHÂN LOẠI (Biến thể) */
+    .product-color-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .product-color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.3);
+    }
+
+    /* chip màu dùng cho filter màu (dưới nút) */
+    .color-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 4px 0;
+    }
+
+    .color-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .color-chip-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .color-chip.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* wrapper cho nút + danh sách màu */
+    .color-filter-wrapper .color-chip-row {
+      display: none;
+      margin-top: 4px;
+    }
+
+    .color-filter-wrapper.open .color-chip-row {
+      display: flex;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        Quản Lý HT.ver1
+      </div>
+
+      <div class="nav-group-title">Chức năng</div>
+      <div class="nav">
+        <a href="/index.html" style="text-decoration:none;">
+          <button class="nav-btn active">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                <path d="M4 10h16M10 4v16"></path>
+              </svg>
+            </span>
+            Sản phẩm
+          </button>
+        </a>
+
+        <a href="/movements.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 5v10M8 5l-3 3M8 5l3 3"></path>
+                <path d="M16 19V9M16 19l-3-3M16 19l3-3"></path>
+              </svg>
+            </span>
+            Nhập / Xuất kho
+          </button>
+        </a>
+
+        <a href="/attributes.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3a8 8 0 0 0-8 8 5 5 0 0 0 5 5h1.2a1.8 1.8 0 0 1 0 3.6A8 8 0 0 0 20 13 8 8 0 0 0 12 3z">
+                </path>
+                <circle cx="9" cy="10" r="0.9"></circle>
+                <circle cx="12" cy="8" r="0.9"></circle>
+                <circle cx="15" cy="10" r="0.9"></circle>
+                <circle cx="15" cy="13" r="0.9"></circle>
+              </svg>
+            </span>
+            Phân loại
+          </button>
+        </a>
+
+        <a href="/history.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            Lịch sử
+          </button>
+        </a>
+
+        <a href="/upload.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 4v9"></path>
+                <path d="M9 7l3-3 3 3"></path>
+                <rect x="5" y="14" width="14" height="6" rx="2"></rect>
+              </svg>
+            </span>
+            Upload ảnh
+          </button>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <h1>Sản phẩm</h1>
+      <p class="subtitle">
+        Quản lý tồn kho theo <strong>biến thể</strong> (màu sắc / size). Dữ liệu lưu trong SQLite.
+      </p>
+
+      <!-- FILTER BAR -->
+      <section class="screen active">
+        <div class="card mb-16">
+          <div class="filter-row">
+            <div class="filter-item">
+              <label>Tên sản phẩm...</label>
+              <input type="text" id="filterSearch" placeholder="Nhập tên để tìm" />
+            </div>
+            <div class="filter-item">
+              <label>Danh mục</label>
+              <select id="filterCategory">
+                <option value="">Tất cả</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Màu</label>
+              <!-- nút + danh sách màu xổ ngay dưới -->
+              <div id="filterColorPicker"></div>
+            </div>
+            <div class="filter-item">
+              <label>Size</label>
+              <select id="filterSize">
+                <option value="">Tất cả</option>
+              </select>
+            </div>
+            <div class="filter-item">
+              <label>Tồn kho</label>
+              <select id="filterStock">
+                <option value="">Tất cả</option>
+                <option value=">0">Còn hàng</option>
+                <option value="=0">Hết hàng</option>
+              </select>
+            </div>
+            <div class="filter-actions">
+              <button class="btn-outline" id="btnClearFilters">Xoá lọc</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCT LIST -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Danh sách sản phẩm</div>
+              <div class="card-subtitle">
+                Bấm vào màu hoặc hình để xem chi tiết biến thể.
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn-outline" id="btnViewLowStock">Sản phẩm sắp / hết hàng</button>
+              <button class="btn-primary" id="btnOpenCreateProduct">➕ Tạo sản phẩm</button>
+              <span class="badge" id="productCountBadge">0 sản phẩm</span>
+            </div>
+          </div>
+
+          <div class="table-wrap product-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:50px;">STT</th>
+                  <th style="width:90px;">HÌNH ẢNH</th>
+                  <th>TÊN SẢN PHẨM</th>
+                  <th style="width:140px;">DANH MỤC</th>
+                  <th style="width:160px;">PHÂN LOẠI<br><span class="muted">(Biến thể)</span></th>
+                  <th style="width:130px;">GIÁ NHẬP</th>
+                  <th style="width:120px;">SỐ LƯỢNG</th>
+                  <th>GHI CHÚ</th>
+                  <th style="width:120px;">THAO TÁC</th>
+                </tr>
+              </thead>
+              <tbody id="productTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: TẠO / SỬA SẢN PHẨM -->
+  <div class="modal-backdrop" id="modalCreateProduct">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="createProductTitle">Tạo sản phẩm mới (nhiều biến thể)</div>
+        <button class="btn-ghost" type="button" data-close="modalCreateProduct">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <div class="form-grid">
+            <!-- TÊN SẢN PHẨM -->
+            <div style="grid-column: 1 / -1;">
+              <label>Tên sản phẩm *</label>
+              <input type="text" id="productName" required />
+            </div>
+
+            <!-- GIÁ + DANH MỤC -->
+            <div>
+              <label>Giá nhập (VNĐ) – áp dụng chung *</label>
+              <input type="number" id="productCost" min="0" step="1" />
+            </div>
+            <div>
+              <label>Danh mục</label>
+              <select id="productCategorySelect">
+                <option value="">-- Chọn danh mục --</option>
+              </select>
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label>Các biến thể (màu / size / số lượng / ảnh)</label>
+              <div class="muted">
+                Mỗi dòng là một màu/size riêng, có ảnh và số lượng riêng.
+              </div>
+              <div id="variantList"></div>
+              <button type="button" class="btn-outline btn-small mt-8" id="btnAddVariant">
+                ➕ Thêm biến thể
+              </button>
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label>Ghi chú (chung cho sản phẩm)</label>
+              <textarea id="productNote"></textarea>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button type="button" class="btn-outline" id="btnClearProductForm">Xoá trắng</button>
+            <button type="submit" class="btn-primary" id="btnSubmitProduct">Lưu sản phẩm</button>
+          </div>
+        </form>
+
+        <p class="muted mt-8">
+          Ảnh: có thể dán URL trực tiếp (VD: <code>/uploads/tenfile.jpg</code>)
+          hoặc bấm “Chọn ảnh” để chọn từ thư viện.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalCreateProduct">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: XEM BIẾN THỂ -->
+  <div class="modal-backdrop" id="modalProductVariants">
+    <div class="modal-dialog" style="max-width:800px;">
+      <div class="modal-header">
+        <div class="modal-title" id="variantsModalTitle">Biến thể sản phẩm</div>
+        <button class="btn-ghost" type="button" data-close="modalProductVariants">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th style="width:90px;">HÌNH ẢNH</th>
+                <th>MÀU</th>
+                <th>SIZE</th>
+                <th style="width:100px;">SỐ LƯỢNG</th>
+              </tr>
+            </thead>
+            <tbody id="variantsModalBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalProductVariants">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PICK ẢNH -->
+  <div class="modal-backdrop" id="modalImagePicker">
+    <div class="modal-dialog" style="max-width:900px;">
+      <div class="modal-header">
+        <div class="modal-title">Chọn ảnh sản phẩm</div>
+        <button class="btn-ghost" type="button" data-close="modalImagePicker">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="muted">Ảnh lấy từ thư mục <code>/uploads/</code> trên server.</p>
+        <div id="imagePickerGrid" class="image-grid"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalImagePicker">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ZOOM ẢNH -->
+  <div class="modal-backdrop" id="modalZoomImage">
+    <div class="modal-dialog" style="max-width:900px;">
+      <div class="modal-header">
+        <div class="modal-title">Xem ảnh lớn</div>
+        <button class="btn-ghost" type="button" data-close="modalZoomImage">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="img-zoom-wrapper">
+          <div class="img-zoom-container">
+            <img id="zoomImage" src="" alt="" />
+            <div id="zoomLens" class="img-zoom-lens"></div>
+          </div>
+          <div id="zoomResult" class="img-zoom-result"></div>
+        </div>
+        <p class="muted mt-8">
+          Di chuột lên ảnh bên trái để xem chi tiết phóng to ở khung bên phải.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalZoomImage">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TỔNG HỢP BIẾN THỂ SẮP / HẾT HÀNG -->
+  <div class="modal-backdrop" id="modalLowStockVariants">
+    <div class="modal-dialog" style="max-width:900px;">
+      <div class="modal-header">
+        <div class="modal-title">Biến thể sắp hết / hết hàng</div>
+        <button class="btn-ghost" type="button" data-close="modalLowStockVariants">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="muted">
+          Danh sách tổng hợp các biến thể có số lượng ít hoặc đã hết hàng.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th style="width:120px;">HÌNH ẢNH</th>
+                <th>SẢN PHẨM</th>
+                <th style="width:140px;">DANH MỤC</th>
+                <th style="width:120px;">MÀU</th>
+                <th style="width:90px;">SIZE</th>
+                <th style="width:90px;">SỐ LƯỢNG</th>
+                <th style="width:120px;">TRẠNG THÁI</th>
+              </tr>
+            </thead>
+            <tbody id="lowStockTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalLowStockVariants">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "";
+    let PRODUCTS = [];
+    let ATTR_COLORS = [];
+    let ATTR_SIZES = [];
+    let ATTR_CATEGORIES = [];
+    let currentImageTarget = null;
+    let EDITING_MASP = null;
+
+    // ngưỡng "sắp hết" cho biến thể
+    const LOW_STOCK_THRESHOLD = 20;
+
+    const FILTERS = {
+      search: "",
+      category: "",
+      color: "",
+      size: "",
+      stock: ""
+    };
+
+    function formatCurrency(v) {
+      if (v === null || v === undefined || v === "" || isNaN(v)) return "";
+      return Number(v).toLocaleString("vi-VN") + " đ";
+    }
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = "flex";
+    }
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = "none";
+    }
+
+    /* ===== LOAD DATA ===== */
+    async function loadAttributes() {
+      const [resColor, resSize, resCat] = await Promise.all([
+        fetch(API_BASE + "/api/attributes?type=color&onlyActive=1"),
+        fetch(API_BASE + "/api/attributes?type=size&onlyActive=1"),
+        fetch(API_BASE + "/api/attributes?type=category&onlyActive=1"),
+      ]);
+      ATTR_COLORS = await resColor.json();
+      ATTR_SIZES = await resSize.json();
+      ATTR_CATEGORIES = await resCat.json();
+      refreshFilterOptions();
+      refreshCategorySelect();
+    }
+
+    async function loadProducts() {
+      const res = await fetch(API_BASE + "/api/products");
+      PRODUCTS = await res.json();
+      renderProducts();
+    }
+
+    /* ===== IMAGE PICKER & ZOOM ===== */
+    async function loadImagesForPicker() {
+      const grid = document.getElementById("imagePickerGrid");
+      grid.innerHTML = '<span class="muted">Đang tải danh sách ảnh...</span>';
+      try {
+        const res = await fetch(API_BASE + "/api/images");
+        const images = await res.json();
+        if (!Array.isArray(images) || images.length === 0) {
+          grid.innerHTML = '<span class="muted">Chưa có ảnh nào. Vào trang Upload ảnh để tải lên.</span>';
+          return;
+        }
+        grid.innerHTML = "";
+        images.forEach((img) => {
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "image-card";
+
+          const imageEl = document.createElement("img");
+          imageEl.src = img.url;
+          imageEl.alt = "";
+          imageEl.className = "image-thumb-large";
+
+          card.appendChild(imageEl);
+          card.addEventListener("click", () => {
+            if (currentImageTarget) {
+              currentImageTarget.input.value = img.url;
+              currentImageTarget.syncPreview();
+            }
+            closeModal("modalImagePicker");
+          });
+
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = '<span class="muted">Lỗi khi tải danh sách ảnh.</span>';
+      }
+    }
+
+    function openZoomModal(url) {
+      if (!url) return;
+      const img = document.getElementById("zoomImage");
+      const lens = document.getElementById("zoomLens");
+      const result = document.getElementById("zoomResult");
+
+      lens.style.left = "0px";
+      lens.style.top = "0px";
+      result.style.backgroundImage = "none";
+
+      img.onload = () => initImageZoom(img, result, lens);
+      img.src = url;
+      openModal("modalZoomImage");
+    }
+
+    function initImageZoom(img, result, lens) {
+      const cx = result.offsetWidth / lens.offsetWidth;
+      const cy = result.offsetHeight / lens.offsetHeight;
+
+      result.style.backgroundImage = `url('${img.src}')`;
+      result.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
+
+      function getCursorPos(e) {
+        e = e || window.event;
+        const rect = img.getBoundingClientRect();
+        const x = e.pageX - rect.left - window.pageXOffset;
+        const y = e.pageY - rect.top - window.pageYOffset;
+        return { x, y };
+      }
+
+      function moveLens(e) {
+        e.preventDefault();
+        const pos = getCursorPos(e);
+        let x = pos.x - lens.offsetWidth / 2;
+        let y = pos.y - lens.offsetHeight / 2;
+
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x > img.width - lens.offsetWidth) x = img.width - lens.offsetWidth;
+        if (y > img.height - lens.offsetHeight) y = img.height - lens.offsetHeight;
+
+        lens.style.left = x + "px";
+        lens.style.top = y + "px";
+        result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+      }
+
+      lens.onmousemove = moveLens;
+      img.onmousemove = moveLens;
+      lens.ontouchmove = moveLens;
+      img.ontouchmove = moveLens;
+    }
+
+    /* ===== COLOR PICKER DÙNG CHO VARIANT ===== */
+    function createColorPicker(initialName) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "color-picker";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "color-picker-btn";
+
+      const labelWrap = document.createElement("span");
+      labelWrap.className = "color-picker-btn-label";
+
+      const circle = document.createElement("span");
+      circle.className = "color-circle";
+      circle.style.backgroundColor = "transparent";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "color-name-short";
+      nameSpan.textContent = "-- Chọn màu --";
+
+      labelWrap.appendChild(circle);
+      labelWrap.appendChild(nameSpan);
+
+      const arrow = document.createElement("span");
+      arrow.className = "color-picker-arrow";
+      arrow.textContent = "▾";
+
+      btn.appendChild(labelWrap);
+      btn.appendChild(arrow);
+
+      const menu = document.createElement("div");
+      menu.className = "color-picker-menu";
+
+      const hidden = document.createElement("input");
+      hidden.type = "hidden";
+      hidden.className = "variant-color-value";
+
+      ATTR_COLORS.forEach(c => {
+        const opt = document.createElement("div");
+        opt.className = "color-picker-option";
+
+        const optCircle = document.createElement("span");
+        optCircle.className = "color-circle";
+        const bg = c.color_code || "#e5e7eb";
+        optCircle.style.backgroundColor = bg;
+        optCircle.style.borderColor = bg;
+
+        const optName = document.createElement("span");
+        optName.className = "color-picker-option-name";
+        optName.textContent = c.color_code ? `${c.name} (${c.color_code})` : c.name;
+
+        opt.appendChild(optCircle);
+        opt.appendChild(optName);
+
+        opt.addEventListener("click", () => {
+          hidden.value = c.name;
+          circle.style.backgroundColor = bg;
+          circle.style.borderColor = bg;
+          nameSpan.textContent = c.name;
+          wrapper.classList.remove("open");
+        });
+
+        menu.appendChild(opt);
+      });
+
+      if (initialName) {
+        const c = ATTR_COLORS.find(x => x.name === initialName);
+        hidden.value = initialName;
+        nameSpan.textContent = initialName;
+        const bg = c && c.color_code ? c.color_code : "#e5e7eb";
+        circle.style.backgroundColor = bg;
+        circle.style.borderColor = bg;
+      }
+
+      btn.addEventListener("click", () => {
+        wrapper.classList.toggle("open");
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!wrapper.contains(e.target)) wrapper.classList.remove("open");
+      });
+
+      wrapper.appendChild(btn);
+      wrapper.appendChild(menu);
+      wrapper.appendChild(hidden);
+
+      return wrapper;
+    }
+
+    /* ===== VARIANT ROW ===== */
+    function createSizeSelect(selected) {
+      const sel = document.createElement("select");
+      sel.className = "variant-size-select";
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "-- Chọn size --";
+      sel.appendChild(opt);
+
+      ATTR_SIZES.forEach((s) => {
+        const o = document.createElement("option");
+        o.value = s.name;
+        o.textContent = s.name;
+        sel.appendChild(o);
+      });
+
+      if (selected) sel.value = selected;
+      return sel;
+    }
+
+    function addVariantRow(initial) {
+      const list = document.getElementById("variantList");
+      const row = document.createElement("div");
+      row.className = "variant-row";
+
+      const colColor = document.createElement("div");
+      const labelColor = document.createElement("label");
+      labelColor.textContent = "Màu sắc";
+      colColor.appendChild(labelColor);
+      const colorPicker = createColorPicker(initial && initial.color);
+      colColor.appendChild(colorPicker);
+
+      const colSize = document.createElement("div");
+      const labelSize = document.createElement("label");
+      labelSize.textContent = "Size";
+      colSize.appendChild(labelSize);
+      const selSize = createSizeSelect(initial && initial.size);
+      colSize.appendChild(selSize);
+
+      const colQty = document.createElement("div");
+      colQty.innerHTML =
+        '<label>Số lượng</label><input type="number" class="variant-quantity" min="0" step="1" />';
+
+      const colImg = document.createElement("div");
+      const labelImg = document.createElement("label");
+      labelImg.textContent = "Ảnh (URL)";
+      colImg.appendChild(labelImg);
+      const inputImg = document.createElement("input");
+      inputImg.type = "text";
+      inputImg.placeholder = "VD: /uploads/tenfile.jpg";
+      inputImg.className = "variant-image-input";
+      colImg.appendChild(inputImg);
+      const preview = document.createElement("img");
+      preview.className = "variant-img-preview";
+      preview.style.display = "none";
+      colImg.appendChild(preview);
+
+      function syncPreview() {
+        const url = inputImg.value.trim();
+        if (url) {
+          preview.src = url;
+          preview.style.display = "block";
+        } else {
+          preview.style.display = "none";
+        }
+      }
+
+      inputImg.addEventListener("input", syncPreview);
+      preview.addEventListener("click", () => {
+        if (preview.src) openZoomModal(preview.src);
+      });
+
+      const colAct = document.createElement("div");
+      colAct.className = "variant-row-actions";
+      colAct.innerHTML =
+        '<button type="button" class="btn-outline btn-small btn-choose-image">Chọn ảnh</button>' +
+        '<button type="button" class="btn-ghost btn-small btn-remove-variant">Xoá</button>';
+
+      row.appendChild(colColor);
+      row.appendChild(colSize);
+      row.appendChild(colQty);
+      row.appendChild(colImg);
+      row.appendChild(colAct);
+      list.appendChild(row);
+
+      const inputQty = row.querySelector(".variant-quantity");
+      const btnChoose = row.querySelector(".btn-choose-image");
+      const btnRemove = row.querySelector(".btn-remove-variant");
+
+      if (initial) {
+        if (initial.quantity != null) inputQty.value = initial.quantity;
+        if (initial.img) {
+          inputImg.value = initial.img;
+          syncPreview();
+        }
+      }
+
+      btnChoose.addEventListener("click", async () => {
+        currentImageTarget = { input: inputImg, preview, syncPreview };
+        await loadImagesForPicker();
+        openModal("modalImagePicker");
+      });
+
+      btnRemove.addEventListener("click", () => {
+        const rows = document.querySelectorAll(".variant-row");
+        if (rows.length <= 1) {
+          const hidden = row.querySelector(".variant-color-value");
+          hidden.value = "";
+          inputQty.value = "";
+          inputImg.value = "";
+          syncPreview();
+        } else {
+          row.remove();
+        }
+      });
+    }
+
+    /* ===== RENDER PRODUCT LIST ===== */
+    function renderProducts() {
+      const tbody = document.getElementById("productTableBody");
+      tbody.innerHTML = "";
+
+      let filtered = PRODUCTS.slice();
+
+      if (FILTERS.search) {
+        const q = FILTERS.search.toLowerCase();
+        filtered = filtered.filter(p => (p.name || "").toLowerCase().includes(q));
+      }
+      if (FILTERS.category) {
+        filtered = filtered.filter(p => (p.category || "") === FILTERS.category);
+      }
+      if (FILTERS.color) {
+        filtered = filtered.filter(p =>
+          (p.variants || []).some(v => v.color === FILTERS.color)
+        );
+      }
+      if (FILTERS.size) {
+        filtered = filtered.filter(p =>
+          (p.variants || []).some(v => v.size === FILTERS.size)
+        );
+      }
+      if (FILTERS.stock === ">0") {
+        filtered = filtered.filter(p =>
+          (p.variants || []).reduce((sum, v) => sum + Number(v.quantity || 0), 0) > 0
+        );
+      } else if (FILTERS.stock === "=0") {
+        filtered = filtered.filter(p =>
+          (p.variants || []).reduce((sum, v) => sum + Number(v.quantity || 0), 0) === 0
+        );
+      }
+
+      filtered.forEach((p, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdIndex = document.createElement("td");
+        tdIndex.textContent = idx + 1;
+        tdIndex.style.textAlign = "center";
+
+        const tdImg = document.createElement("td");
+        tdImg.className = "img-cell";
+        const first = (p.variants || []).find(v => v.img);
+        if (first && first.img) {
+          const img = document.createElement("img");
+          img.src = first.img;
+          img.alt = "";
+          img.className = "img-thumb";
+          img.onclick = () => openZoomModal(first.img);
+          tdImg.appendChild(img);
+        } else {
+          tdImg.innerHTML = '<span class="muted">Không có ảnh</span>';
+        }
+
+        const tdName = document.createElement("td");
+        tdName.textContent = p.name || "";
+
+        const tdCategory = document.createElement("td");
+        tdCategory.textContent = p.category || "";
+
+        const tdVariant = document.createElement("td");
+
+        const uniqueColors = Array.from(
+          new Set(
+            (p.variants || [])
+              .map(v => (v.color || "").trim())
+              .filter(Boolean)
+          )
+        );
+
+        if (uniqueColors.length === 0) {
+          tdVariant.innerHTML = '<span class="muted">Chưa có biến thể</span>';
+        } else {
+          const wrap = document.createElement("div");
+          wrap.className = "product-color-list";
+
+          uniqueColors.forEach(colorName => {
+            const dot = document.createElement("span");
+            dot.className = "product-color-dot";
+
+            const attr = ATTR_COLORS.find(c => c.name === colorName);
+            const bg = attr && attr.color_code ? attr.color_code : "#e5e7eb";
+
+            dot.style.backgroundColor = bg;
+            dot.style.borderColor = bg;
+            dot.title = colorName;
+
+            wrap.appendChild(dot);
+          });
+
+          tdVariant.appendChild(wrap);
+          tdVariant.style.cursor = "pointer";
+          tdVariant.title = "Bấm để xem chi tiết biến thể";
+          tdVariant.addEventListener("click", () => openVariantModal(p));
+        }
+
+        const tdCost = document.createElement("td");
+        tdCost.textContent = p.cost != null ? formatCurrency(p.cost) : "";
+        tdCost.style.whiteSpace = "nowrap";
+
+        const tdQty = document.createElement("td");
+        let total = 0;
+        (p.variants || []).forEach(v => total += Number(v.quantity || 0));
+        const spanQty = document.createElement("span");
+
+        if (total === 0) {
+          spanQty.className = "qty-badge qty-danger";
+        } else if (total < LOW_STOCK_THRESHOLD) {
+          spanQty.className = "qty-badge qty-warning";
+        } else {
+          spanQty.className = "qty-badge qty-ok";
+        }
+        spanQty.textContent = total;
+
+        tdQty.appendChild(spanQty);
+        tdQty.style.textAlign = "center";
+
+        const tdNote = document.createElement("td");
+        tdNote.textContent = p.note || "";
+
+        const tdActions = document.createElement("td");
+        tdActions.style.textAlign = "center";
+        const btnEdit = document.createElement("button");
+        btnEdit.type = "button";
+        btnEdit.className = "btn-link";
+        btnEdit.textContent = "Sửa";
+        btnEdit.addEventListener("click", () => openEditProduct(p));
+        const btnDelete = document.createElement("button");
+        btnDelete.type = "button";
+        btnDelete.className = "btn-link btn-link-danger";
+        btnDelete.textContent = "Xoá";
+        btnDelete.addEventListener("click", () => deleteProduct(p.MaSP));
+        tdActions.appendChild(btnEdit);
+        tdActions.appendChild(document.createTextNode(" "));
+        tdActions.appendChild(btnDelete);
+
+        tr.appendChild(tdIndex);
+        tr.appendChild(tdImg);
+        tr.appendChild(tdName);
+        tr.appendChild(tdCategory);
+        tr.appendChild(tdVariant);
+        tr.appendChild(tdCost);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdNote);
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("productCountBadge").textContent =
+        filtered.length + " sản phẩm";
+    }
+
+    function openVariantModal(product) {
+      const tbody = document.getElementById("variantsModalBody");
+      tbody.innerHTML = "";
+      (product.variants || []).forEach((v, idx) => {
+        const tr = document.createElement("tr");
+        const tdIndex = document.createElement("td");
+        tdIndex.textContent = idx + 1;
+        tdIndex.style.textAlign = "center";
+
+        const tdImg = document.createElement("td");
+        tdImg.className = "img-cell";
+        if (v.img) {
+          const img = document.createElement("img");
+          img.src = v.img;
+          img.className = "img-thumb";
+          img.onclick = () => openZoomModal(v.img);
+          tdImg.appendChild(img);
+        } else tdImg.innerHTML = '<span class="muted">Không có ảnh</span>';
+
+        const tdColor = document.createElement("td");
+        tdColor.textContent = v.color || "";
+        const tdSize = document.createElement("td");
+        tdSize.textContent = v.size || "";
+        const tdQty = document.createElement("td");
+        tdQty.textContent = v.quantity;
+        tdQty.style.textAlign = "center";
+
+        tr.append(tdIndex, tdImg, tdColor, tdSize, tdQty);
+        tbody.appendChild(tr);
+      });
+      document.getElementById("variantsModalTitle").textContent =
+        "Biến thể sản phẩm: " + (product.name || "");
+      openModal("modalProductVariants");
+    }
+
+    async function deleteProduct(masp) {
+      if (!confirm("Bạn chắc chắn muốn xoá sản phẩm này?")) return;
+      try {
+        const res = await fetch(API_BASE + "/api/products/" + encodeURIComponent(masp), {
+          method: "DELETE",
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.error || "Lỗi khi xoá sản phẩm");
+          return;
+        }
+        await loadProducts();
+      } catch (err) {
+        console.error(err);
+        alert("Không xoá được sản phẩm.");
+      }
+    }
+
+    /* ===== CREATE / EDIT PRODUCT ===== */
+    function clearProductForm() {
+      document.getElementById("productForm").reset();
+      const list = document.getElementById("variantList");
+      list.innerHTML = "";
+      addVariantRow();
+      EDITING_MASP = null;
+      document.getElementById("createProductTitle").textContent =
+        "Tạo sản phẩm mới (nhiều biến thể)";
+      document.getElementById("btnSubmitProduct").textContent = "Lưu sản phẩm";
+    }
+
+    function openCreateProductModal() {
+      clearProductForm();
+      openModal("modalCreateProduct");
+    }
+
+    function openEditProduct(product) {
+      clearProductForm();
+      EDITING_MASP = product.MaSP;
+      document.getElementById("createProductTitle").textContent =
+        "Sửa sản phẩm";
+      document.getElementById("btnSubmitProduct").textContent =
+        "Cập nhật sản phẩm";
+
+      document.getElementById("productName").value = product.name || "";
+      document.getElementById("productCost").value =
+        product.cost != null ? product.cost : "";
+      document.getElementById("productNote").value = product.note || "";
+
+      const catSelect = document.getElementById("productCategorySelect");
+      if (catSelect) {
+        catSelect.value = product.category || "";
+      }
+
+      const list = document.getElementById("variantList");
+      list.innerHTML = "";
+      if (product.variants && product.variants.length) {
+        product.variants.forEach((v) => addVariantRow(v));
+      } else {
+        addVariantRow();
+      }
+
+      openModal("modalCreateProduct");
+    }
+
+    async function handleSubmitProduct(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("productName").value.trim();
+      const costStr = document.getElementById("productCost").value.trim();
+      const note = document.getElementById("productNote").value.trim();
+      const category = (document.getElementById("productCategorySelect").value || "").trim();
+
+      if (!name) {
+        alert("Vui lòng nhập TÊN SẢN PHẨM.");
+        return;
+      }
+
+      if (costStr === "" || isNaN(costStr) || Number(costStr) <= 0) {
+        alert("Vui lòng nhập GIÁ NHẬP và phải > 0.");
+        return;
+      }
+      const cost = Number(costStr);
+
+      const rows = document.querySelectorAll(".variant-row");
+      const variants = [];
+      let hasMissingColorSize = false;
+      let hasInvalidQty = false;
+
+      rows.forEach((row) => {
+        const color = (row.querySelector(".variant-color-value").value || "").trim();
+        const size = (row.querySelector(".variant-size-select").value || "").trim();
+        const qtyStr = (row.querySelector(".variant-quantity").value || "").trim();
+        const img = (row.querySelector(".variant-image-input").value || "").trim();
+
+        if (color || size || img || qtyStr !== "") {
+          if (!color) hasMissingColorSize = true;
+          if (qtyStr === "" || isNaN(qtyStr) || Number(qtyStr) < 0) {
+            hasInvalidQty = true;
+          }
+
+          variants.push({
+            color,
+            size,
+            quantity: qtyStr === "" ? 0 : Number(qtyStr),
+            img,
+          });
+        }
+      });
+
+      if (variants.length === 0) {
+        alert("Vui lòng thêm ít nhất một biến thể (màu/size/số lượng).");
+        return;
+      }
+      if (hasMissingColorSize) {
+        alert("Mỗi biến thể phải chọn màu.");
+        return;
+      }
+      if (hasInvalidQty) {
+        alert("Số lượng mỗi biến thể không được để trống và không được < 0.");
+        return;
+      }
+
+      const seen = {};
+      let duplicatedKey = null;
+      for (const v of variants) {
+        const key = `${v.color}||${v.size}`;
+        if (seen[key]) {
+          duplicatedKey = key;
+          break;
+        }
+        seen[key] = true;
+      }
+      if (duplicatedKey) {
+        const [dupColor, dupSize] = duplicatedKey.split("||");
+        alert(
+          `Biến thể MÀU "${dupColor}" - SIZE "${dupSize}" đã bị trùng.\nVui lòng xoá bớt hoặc sửa lại.`
+        );
+        return;
+      }
+
+      const body = {
+        name,
+        cost,
+        category: category || null,
+        note: note || null,
+        variants: variants.map((v) => ({
+          color: v.color || null,
+          size: v.size || null,
+          quantity: v.quantity || 0,
+          img: v.img || null,
+        })),
+      };
+
+      let url = API_BASE + "/api/products";
+      let method = "POST";
+      if (EDITING_MASP) {
+        url = API_BASE + "/api/products/" + encodeURIComponent(EDITING_MASP);
+        method = "PUT";
+      }
+
+      let res, data;
+      try {
+        res = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        data = await res.json().catch(() => ({}));
+      } catch (err) {
+        console.error(err);
+        alert("Không kết nối được tới server.");
+        return;
+      }
+
+      if (!res.ok) {
+        alert(data.error || "Lỗi khi lưu sản phẩm");
+        return;
+      }
+
+      await loadProducts();
+      clearProductForm();
+      closeModal("modalCreateProduct");
+    }
+
+    /* ===== POPUP TỔNG HỢP BIẾN THỂ SẮP / HẾT HÀNG ===== */
+    function openLowStockModal() {
+      const tbody = document.getElementById("lowStockTableBody");
+      tbody.innerHTML = "";
+
+      const lowVariants = [];
+
+      PRODUCTS.forEach((p) => {
+        (p.variants || []).forEach((v) => {
+          const qty = Number(v.quantity || 0);
+          if (qty === 0 || (qty > 0 && qty < LOW_STOCK_THRESHOLD)) {
+            lowVariants.push({
+              productName: p.name || "",
+              category: p.category || "",
+              color: v.color || "",
+              size: v.size || "",
+              quantity: qty,
+              img: v.img || ""
+            });
+          }
+        });
+      });
+
+      if (lowVariants.length === 0) {
+        alert("Hiện không có biến thể nào sắp hết hoặc hết hàng.");
+        return;
+      }
+
+      lowVariants.sort((a, b) => {
+        if (a.quantity === 0 && b.quantity !== 0) return -1;
+        if (a.quantity !== 0 && b.quantity === 0) return 1;
+        if (a.quantity !== b.quantity) return a.quantity - b.quantity;
+        return a.productName.localeCompare(b.productName, "vi");
+      });
+
+      lowVariants.forEach((item, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdIndex = document.createElement("td");
+        tdIndex.textContent = idx + 1;
+        tdIndex.style.textAlign = "center";
+
+        const tdImg = document.createElement("td");
+        tdImg.className = "img-cell";
+        if (item.img) {
+          const img = document.createElement("img");
+          img.src = item.img;
+          img.alt = "";
+          img.className = "img-thumb";
+          img.onclick = () => openZoomModal(item.img);
+          tdImg.appendChild(img);
+        } else {
+          tdImg.innerHTML = '<span class="muted">Không có ảnh</span>';
+        }
+
+        const tdProd = document.createElement("td");
+        tdProd.textContent = item.productName;
+
+        const tdCat = document.createElement("td");
+        tdCat.textContent = item.category || "";
+
+        const tdColor = document.createElement("td");
+        tdColor.textContent = item.color || "";
+
+        const tdSize = document.createElement("td");
+        tdSize.textContent = item.size || "";
+
+        const tdQty = document.createElement("td");
+        tdQty.style.textAlign = "center";
+        tdQty.textContent = item.quantity;
+
+        const tdStatus = document.createElement("td");
+        let statusText = "";
+        let statusClass = "badge";
+        if (item.quantity === 0) {
+          statusText = "Hết hàng";
+          statusClass += " badge-danger";
+        } else {
+          statusText = "Sắp hết";
+          statusClass += " badge-warning";
+        }
+        const spanStatus = document.createElement("span");
+        spanStatus.className = statusClass;
+        spanStatus.textContent = statusText;
+        tdStatus.appendChild(spanStatus);
+
+        tr.appendChild(tdIndex);
+        tr.appendChild(tdImg);
+        tr.appendChild(tdProd);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdColor);
+        tr.appendChild(tdSize);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdStatus);
+
+        tbody.appendChild(tr);
+      });
+
+      openModal("modalLowStockVariants");
+    }
+
+    /* ===== FILTER: MÀU (NÚT + CHIP NGAY DƯỚI) ===== */
+
+    function buildFilterColorPicker() {
+      const container = document.getElementById("filterColorPicker");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "color-filter-wrapper";
+
+      // nút
+      const picker = document.createElement("div");
+      picker.className = "color-picker";
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "color-picker-btn";
+
+      const labelWrap = document.createElement("span");
+      labelWrap.className = "color-picker-btn-label";
+
+      const circle = document.createElement("span");
+      circle.className = "color-circle";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "color-name-short";
+
+      function updateLabel() {
+        if (!FILTERS.color) {
+          circle.style.backgroundColor = "transparent";
+          circle.style.borderColor = "#e5e7eb";
+          nameSpan.textContent = "Tất cả";
+        } else {
+          const c = ATTR_COLORS.find(x => x.name === FILTERS.color);
+          const bg = c && c.color_code ? c.color_code : "#e5e7eb";
+          circle.style.backgroundColor = bg;
+          circle.style.borderColor = bg;
+          nameSpan.textContent = FILTERS.color;
+        }
+      }
+
+      updateLabel();
+
+      labelWrap.appendChild(circle);
+      labelWrap.appendChild(nameSpan);
+
+      const arrow = document.createElement("span");
+      arrow.className = "color-picker-arrow";
+      arrow.textContent = "▾";
+
+      btn.appendChild(labelWrap);
+      btn.appendChild(arrow);
+
+      picker.appendChild(btn);
+
+      // hàng chip màu
+      const chipRow = document.createElement("div");
+      chipRow.className = "color-chip-row";
+
+      function createChip(label, colorName, bgColor) {
+        const chip = document.createElement("div");
+        chip.className = "color-chip";
+        if (FILTERS.color === colorName) chip.classList.add("active");
+
+        const dot = document.createElement("span");
+        dot.className = "color-chip-dot";
+        if (bgColor) {
+          dot.style.backgroundColor = bgColor;
+          dot.style.borderColor = bgColor;
+        }
+
+        const text = document.createElement("span");
+        text.textContent = label;
+
+        chip.appendChild(dot);
+        chip.appendChild(text);
+
+        chip.addEventListener("click", () => {
+          FILTERS.color = colorName || "";
+          updateLabel();
+          renderProducts();
+        });
+
+        return chip;
+      }
+
+      chipRow.appendChild(createChip("Tất cả", "", null));
+
+      ATTR_COLORS.forEach(c => {
+        const bg = c.color_code || "#e5e7eb";
+        chipRow.appendChild(createChip(c.name, c.name, bg));
+      });
+
+      // click nút => mở/đóng chip
+      btn.addEventListener("click", () => {
+        wrapper.classList.toggle("open");
+      });
+
+      wrapper.appendChild(picker);
+      wrapper.appendChild(chipRow);
+      container.appendChild(wrapper);
+    }
+
+    /* ===== FILTER UI ===== */
+
+    function refreshFilterOptions() {
+      // màu: nút + chip ngay dưới
+      buildFilterColorPicker();
+
+      // size: select
+      const selSize = document.getElementById("filterSize");
+      const curSize = selSize.value;
+
+      selSize.innerHTML = '<option value="">Tất cả</option>';
+      ATTR_SIZES.forEach((s) => {
+        const o = document.createElement("option");
+        o.value = s.name;
+        o.textContent = s.name;
+        selSize.appendChild(o);
+      });
+      selSize.value = curSize || "";
+
+      selSize.onchange = () => {
+        FILTERS.size = selSize.value || "";
+        renderProducts();
+      };
+    }
+
+    function refreshCategorySelect() {
+      const selForm = document.getElementById("productCategorySelect");
+      const selFilter = document.getElementById("filterCategory");
+
+      const curForm = selForm ? selForm.value : "";
+      const curFilter = selFilter ? selFilter.value : "";
+
+      if (selForm) {
+        selForm.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+        ATTR_CATEGORIES.forEach((cat) => {
+          const o = document.createElement("option");
+          o.value = cat.name;
+          o.textContent = cat.name;
+          selForm.appendChild(o);
+        });
+        if (curForm) selForm.value = curForm;
+      }
+
+      if (selFilter) {
+        selFilter.innerHTML = '<option value="">Tất cả</option>';
+        ATTR_CATEGORIES.forEach((cat) => {
+          const o = document.createElement("option");
+          o.value = cat.name;
+          o.textContent = cat.name;
+          selFilter.appendChild(o);
+        });
+        selFilter.value = curFilter || "";
+        selFilter.onchange = () => {
+          FILTERS.category = selFilter.value || "";
+          renderProducts();
+        };
+      }
+    }
+
+    /* ===== INIT ===== */
+    document.addEventListener("DOMContentLoaded", async () => {
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          closeModal(btn.getAttribute("data-close"))
+        );
+      });
+      ["modalCreateProduct", "modalProductVariants", "modalImagePicker", "modalZoomImage", "modalLowStockVariants"].forEach((id) => {
+        const backdrop = document.getElementById(id);
+        if (!backdrop) return;
+        backdrop.addEventListener("click", (e) => {
+          if (e.target === backdrop) closeModal(id);
+        });
+      });
+
+      document
+        .getElementById("btnOpenCreateProduct")
+        .addEventListener("click", openCreateProductModal);
+      document
+        .getElementById("btnAddVariant")
+        .addEventListener("click", () => addVariantRow());
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", handleSubmitProduct);
+      document
+        .getElementById("btnClearProductForm")
+        .addEventListener("click", clearProductForm);
+
+      document
+        .getElementById("btnViewLowStock")
+        .addEventListener("click", openLowStockModal);
+
+      const inputSearch = document.getElementById("filterSearch");
+      inputSearch.addEventListener("input", () => {
+        FILTERS.search = inputSearch.value.trim();
+        renderProducts();
+      });
+
+      document.getElementById("filterStock").addEventListener("change", (e) => {
+        FILTERS.stock = e.target.value || "";
+        renderProducts();
+      });
+
+      document.getElementById("btnClearFilters").addEventListener("click", () => {
+        FILTERS.search = "";
+        FILTERS.category = "";
+        FILTERS.color = "";
+        FILTERS.size = "";
+        FILTERS.stock = "";
+
+        document.getElementById("filterSearch").value = "";
+        document.getElementById("filterCategory").value = "";
+        document.getElementById("filterSize").value = "";
+        document.getElementById("filterStock").value = "";
+
+        buildFilterColorPicker();
+        renderProducts();
+      });
+
+      await loadAttributes();
+      await loadProducts();
+      addVariantRow();
+    });
+  </script>
+</body>
+
+</html>

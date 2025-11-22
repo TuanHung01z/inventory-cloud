@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Kho Online - Phân loại (Màu / Size / Danh mục)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        Quản Lý HT.ver1
+      </div>
+
+      <div class="nav-group-title">Chức năng</div>
+      <div class="nav">
+        <a href="/index.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                <path d="M4 10h16M10 4v16"></path>
+              </svg>
+            </span>
+            Sản phẩm
+          </button>
+        </a>
+
+        <a href="/movements.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 5v10M8 5l-3 3M8 5l3 3"></path>
+                <path d="M16 19V9M16 19l-3-3M16 19l3-3"></path>
+              </svg>
+            </span>
+            Nhập / Xuất kho
+          </button>
+        </a>
+
+        <a href="/attributes.html" style="text-decoration:none;">
+          <button class="nav-btn active">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3a8 8 0 0 0-8 8 5 5 0 0 0 5 5h1.2a1.8 1.8 0 0 1 0 3.6A8 8 0 0 0 20 13 8 8 0 0 0 12 3z">
+                </path>
+                <circle cx="9" cy="10" r="0.9"></circle>
+                <circle cx="12" cy="8" r="0.9"></circle>
+                <circle cx="15" cy="10" r="0.9"></circle>
+                <circle cx="15" cy="13" r="0.9"></circle>
+              </svg>
+            </span>
+            Phân loại
+          </button>
+        </a>
+
+        <a href="/history.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            Lịch sử
+          </button>
+        </a>
+
+        <a href="/upload.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 4v9"></path>
+                <path d="M9 7l3-3 3 3"></path>
+                <rect x="5" y="14" width="14" height="6" rx="2"></rect>
+              </svg>
+            </span>
+            Upload ảnh
+          </button>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <h1>Phân loại (Màu sắc, Size & Danh mục)</h1>
+      <p class="subtitle">
+        Tạo trước các màu, size & danh mục hay dùng.<br />
+        <strong>Chỉ những dòng ở trạng thái “Hoạt động” mới xuất hiện khi tạo sản phẩm.</strong>
+      </p>
+
+      <section class="screen active">
+        <div class="card">
+          <div class="form-grid">
+            <!-- MÀU -->
+            <div>
+              <label>Thêm màu mới</label>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <input type="text" id="inputColorName" placeholder="VD: Đen, Trắng, Be..." style="flex:1 1 150px;" />
+                <input type="color" id="inputColorCode" value="#000000" title="Chọn mã màu"
+                  style="width:48px; padding:0; border:none; background:transparent; cursor:pointer;" />
+                <button class="btn-primary btn-small" id="btnAddColor">
+                  Thêm màu
+                </button>
+              </div>
+
+              <div class="table-wrap mt-8" style="max-height:260px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:40px;">#</th>
+                      <th>MÀU</th>
+                      <th style="width:120px;">TRẠNG THÁI</th>
+                      <th style="width:140px;">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody id="colorTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- SIZE -->
+            <div>
+              <label>Thêm size mới</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inputSizeName" placeholder="VD: S, M, 38, 39..." style="flex:1 1 150px;" />
+                <button class="btn-primary btn-small" id="btnAddSize">
+                  Thêm size
+                </button>
+              </div>
+
+              <div class="table-wrap mt-8" style="max-height:260px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:40px;">#</th>
+                      <th>SIZE</th>
+                      <th style="width:120px;">TRẠNG THÁI</th>
+                      <th style="width:140px;">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sizeTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- DANH MỤC -->
+            <div>
+              <label>Thêm danh mục mới</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inputCategoryName" placeholder="VD: Mũ MLB, Mũ lưỡi trai, Mũ bucket..."
+                  style="flex:1 1 150px;" />
+                <button class="btn-primary btn-small" id="btnAddCategory">
+                  Thêm
+                </button>
+              </div>
+
+              <div class="table-wrap mt-8" style="max-height:260px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width:40px;">#</th>
+                      <th>DANH MỤC</th>
+                      <th style="width:120px;">TRẠNG THÁI</th>
+                      <th style="width:140px;">THAO TÁC</th>
+                    </tr>
+                  </thead>
+                  <tbody id="categoryTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <p class="muted mt-8">
+            Khi “Tắt hoạt động”, Màu / Size / Danh mục đó sẽ không còn xuất hiện trong combobox ở trang Sản phẩm,
+            nhưng dữ liệu cũ & lịch sử vẫn giữ nguyên.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL SỬA PHÂN LOẠI -->
+  <div class="modal-backdrop" id="modalEditAttr">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="editAttrTitle">Sửa phân loại</div>
+        <button class="btn-ghost" type="button" data-close="modalEditAttr">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editAttrForm">
+          <div class="form-grid">
+            <div style="grid-column:1/-1;">
+              <label>Loại phân loại</label>
+              <input type="text" id="editAttrTypeLabel" disabled />
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label>Tên *</label>
+              <input type="text" id="editAttrName" />
+            </div>
+
+            <div id="editColorSection">
+              <label>Mã màu</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="color" id="editAttrColorPicker"
+                  style="width:48px; padding:0; border:none; background:transparent; cursor:pointer;">
+                <input type="text" id="editAttrColorText" placeholder="#000000" />
+              </div>
+            </div>
+
+            <div style="grid-column:1/-1;">
+              <label>Trạng thái</label>
+              <select id="editAttrStatus">
+                <option value="1">Hoạt động</option>
+                <option value="0">Không hoạt động</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" type="button" data-close="modalEditAttr">Huỷ</button>
+        <button class="btn-primary" type="button" id="btnSaveAttrEdit">
+          Lưu thay đổi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "";
+    let COLORS = [];
+    let SIZES = [];
+    let CATEGORIES = [];
+    let editingAttr = null; // { id, type, name, color_code, status }
+
+    // ===== UTILS MODAL =====
+    function openModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = "flex";
+    }
+    function closeModal(id) {
+      const m = document.getElementById(id);
+      if (m) m.style.display = "none";
+    }
+
+    // ===== LOAD DATA =====
+    async function loadAttributes() {
+      const [r1, r2, r3] = await Promise.all([
+        fetch(API_BASE + "/api/attributes?type=color"),
+        fetch(API_BASE + "/api/attributes?type=size"),
+        fetch(API_BASE + "/api/attributes?type=category"),
+      ]);
+      COLORS = await r1.json();
+      SIZES = await r2.json();
+      CATEGORIES = await r3.json();
+      renderTables();
+    }
+
+    function renderStatusBadge(item) {
+      const status = Number(item.status) === 0 ? 0 : 1;
+      const baseStyle =
+        "display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;border-width:1px;border-style:solid;";
+      if (status === 1) {
+        return (
+          '<button class="btn-ghost btn-small" data-action="toggle-status" data-id="' + item.id +
+          '" data-type="' + item.type + '">' +
+          '<span style="' +
+          baseStyle +
+          'background:#dcfce7;border-color:#bbf7d0;color:#166534;">Hoạt động</span>' +
+          "</button>"
+        );
+      }
+      return (
+        '<button class="btn-ghost btn-small" data-action="toggle-status" data-id="' + item.id +
+        '" data-type="' + item.type + '">' +
+        '<span style="' +
+        baseStyle +
+        'background:#e5e7eb;border-color:#d1d5db;color:#374151;">Không hoạt động</span>' +
+        "</button>"
+      );
+    }
+
+    // ===== RENDER TABLES =====
+    function renderTables() {
+      const colorBody = document.getElementById("colorTableBody");
+      const sizeBody = document.getElementById("sizeTableBody");
+      const categoryBody = document.getElementById("categoryTableBody");
+      colorBody.innerHTML = "";
+      sizeBody.innerHTML = "";
+      categoryBody.innerHTML = "";
+
+      // --- MÀU ---
+      COLORS.forEach((c, idx) => {
+        const tr = document.createElement("tr");
+        c.type = "color";
+
+        let nameHtml;
+        if (c.color_code) {
+          nameHtml =
+            '<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:' +
+            c.color_code +
+            ';color:#fff;font-size:12px;margin-right:6px;min-width:60px;text-align:center;">' +
+            c.name +
+            "</span>"
+          // +
+          // "<code>" +
+          // c.color_code +
+          // "</code>";
+        } else {
+          nameHtml =
+            "<span>" +
+            c.name +
+            '</span><span class="muted" style="margin-left:6px;font-size:11px;">(chưa chọn mã màu)</span>';
+        }
+
+        let html = "";
+        html += '<td style="text-align:center;">' + (idx + 1) + "</td>";
+        html += "<td>" + nameHtml + "</td>";
+        html += '<td style="text-align:center;">' + renderStatusBadge(c) + "</td>";
+        html +=
+          '<td style="text-align:right;">' +
+          '<button class="btn-ghost btn-small" data-action="edit" data-type="color" data-id="' +
+          c.id +
+          '">Sửa</button> ' +
+          '<button class="btn-ghost btn-small" data-action="delete" data-type="color" data-id="' +
+          c.id +
+          '">Xoá</button>' +
+          "</td>";
+        tr.innerHTML = html;
+        colorBody.appendChild(tr);
+      });
+
+      // --- SIZE ---
+      SIZES.forEach((s, idx) => {
+        const tr = document.createElement("tr");
+        s.type = "size";
+
+        let html = "";
+        html += '<td style="text-align:center;">' + (idx + 1) + "</td>";
+        html += "<td>" + s.name + "</td>";
+        html += '<td style="text-align:center;">' + renderStatusBadge(s) + "</td>";
+        html +=
+          '<td style="text-align:right;">' +
+          '<button class="btn-ghost btn-small" data-action="edit" data-type="size" data-id="' +
+          s.id +
+          '">Sửa</button> ' +
+          '<button class="btn-ghost btn-small" data-action="delete" data-type="size" data-id="' +
+          s.id +
+          '">Xoá</button>' +
+          "</td>";
+        tr.innerHTML = html;
+        sizeBody.appendChild(tr);
+      });
+
+      // --- DANH MỤC ---
+      CATEGORIES.forEach((cat, idx) => {
+        const tr = document.createElement("tr");
+        cat.type = "category";
+
+        let html = "";
+        html += '<td style="text-align:center;">' + (idx + 1) + "</td>";
+        html += "<td>" + cat.name + "</td>";
+        html += '<td style="text-align:center;">' + renderStatusBadge(cat) + "</td>";
+        html +=
+          '<td style="text-align:right;">' +
+          '<button class="btn-ghost btn-small" data-action="edit" data-type="category" data-id="' +
+          cat.id +
+          '">Sửa</button> ' +
+          '<button class="btn-ghost btn-small" data-action="delete" data-type="category" data-id="' +
+          cat.id +
+          '">Xoá</button>' +
+          "</td>";
+        tr.innerHTML = html;
+        categoryBody.appendChild(tr);
+      });
+
+      attachRowActions();
+    }
+
+    // ===== THÊM MỚI =====
+    async function handleAddAttribute(type) {
+      let inputId;
+      if (type === "color") inputId = "inputColorName";
+      else if (type === "size") inputId = "inputSizeName";
+      else inputId = "inputCategoryName";
+
+      const input = document.getElementById(inputId);
+      const name = (input.value || "").trim();
+
+      if (!name) {
+        const label =
+          type === "color" ? "màu" : type === "size" ? "size" : "danh mục";
+        alert("Vui lòng nhập tên " + label);
+        return;
+      }
+
+      const body = { type, name, status: 1 }; // luôn tạo ở trạng thái HOẠT ĐỘNG
+
+      if (type === "color") {
+        const colorInput = document.getElementById("inputColorCode");
+        let color_code = colorInput ? (colorInput.value || "").trim() : "";
+        if (!color_code) color_code = null;
+        body.colorCode = color_code;
+      }
+
+      let r, data;
+      try {
+        r = await fetch(API_BASE + "/api/attributes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        data = await r.json().catch(() => ({}));
+      } catch (err) {
+        console.error(err);
+        alert("Không kết nối được tới server.");
+        return;
+      }
+
+      if (!r.ok) {
+        alert(data.error || "Lỗi khi tạo phân loại");
+        return;
+      }
+
+      input.value = "";
+      if (type === "color") {
+        const colorInput = document.getElementById("inputColorCode");
+        if (colorInput) colorInput.value = "#000000";
+      }
+
+      await loadAttributes();
+    }
+
+    // ===== EDIT (POPUP) / DELETE / TOGGLE STATUS =====
+    function findItemByIdAndType(id, type) {
+      const arr =
+        type === "color" ? COLORS : type === "size" ? SIZES : CATEGORIES;
+      return arr.find((x) => String(x.id) === String(id));
+    }
+
+    function openEditAttributeModal(id, type) {
+      const item = findItemByIdAndType(id, type);
+      if (!item) {
+        alert("Không tìm thấy bản ghi để sửa");
+        return;
+      }
+      editingAttr = item;
+
+      const label =
+        type === "color" ? "Màu" : type === "size" ? "Size" : "Danh mục";
+
+      document.getElementById("editAttrTitle").textContent =
+        "Sửa " + label.toLowerCase();
+      document.getElementById("editAttrTypeLabel").value = label;
+      document.getElementById("editAttrName").value = item.name || "";
+
+      const statusSelect = document.getElementById("editAttrStatus");
+      statusSelect.value = Number(item.status) === 0 ? "0" : "1";
+
+      const colorSection = document.getElementById("editColorSection");
+      if (type === "color") {
+        colorSection.style.display = "block";
+        const picker = document.getElementById("editAttrColorPicker");
+        const text = document.getElementById("editAttrColorText");
+        let hex = item.color_code || "#000000";
+        if (!hex.startsWith("#")) hex = "#" + hex;
+        picker.value = hex;
+        text.value = hex;
+      } else {
+        colorSection.style.display = "none";
+      }
+
+      openModal("modalEditAttr");
+    }
+
+    async function saveEditAttribute() {
+      if (!editingAttr) return;
+      const id = editingAttr.id;
+      const type = editingAttr.type;
+
+      const nameInput = document.getElementById("editAttrName");
+      let newName = (nameInput.value || "").trim();
+      if (!newName) {
+        alert("Tên không được để trống");
+        nameInput.focus();
+        return;
+      }
+
+      const statusSelect = document.getElementById("editAttrStatus");
+      const status = statusSelect.value === "0" ? 0 : 1;
+
+      const body = { name: newName, status };
+
+      if (type === "color") {
+        const text = document.getElementById("editAttrColorText");
+        let hex = (text.value || "").trim();
+        if (hex && !hex.startsWith("#")) hex = "#" + hex;
+        if (!hex) hex = null;
+        body.colorCode = hex;
+      }
+
+      let r, data;
+      try {
+        r = await fetch(API_BASE + "/api/attributes/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        data = await r.json().catch(() => ({}));
+      } catch (err) {
+        console.error(err);
+        alert("Không kết nối được tới server.");
+        return;
+      }
+
+      if (!r.ok) {
+        alert(data.error || "Lỗi khi sửa phân loại");
+        return;
+      }
+
+      editingAttr = null;
+      closeModal("modalEditAttr");
+      await loadAttributes();
+    }
+
+    async function toggleStatus(id, type) {
+      const item = findItemByIdAndType(id, type);
+      if (!item) {
+        alert("Không tìm thấy bản ghi");
+        return;
+      }
+
+      const current = Number(item.status) === 0 ? 0 : 1;
+      const next = current ? 0 : 1;
+
+      const label =
+        type === "color" ? "màu" : type === "size" ? "size" : "danh mục";
+
+      if (
+        !confirm(
+          `Chuyển trạng thái ${label} "${item.name}" sang ` +
+          (next ? "HOẠT ĐỘNG" : "KHÔNG HOẠT ĐỘNG") +
+          "?"
+        )
+      ) {
+        return;
+      }
+
+      const body = { status: next };
+
+      let r, data;
+      try {
+        r = await fetch(API_BASE + "/api/attributes/" + id, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        data = await r.json().catch(() => ({}));
+      } catch (err) {
+        console.error(err);
+        alert("Không kết nối được tới server.");
+        return;
+      }
+
+      if (!r.ok) {
+        alert(data.error || "Lỗi khi đổi trạng thái");
+        return;
+      }
+
+      await loadAttributes();
+    }
+
+    async function deleteAttribute(id, type) {
+      const label =
+        type === "color" ? "màu" : type === "size" ? "size" : "danh mục";
+
+      if (!confirm("Bạn có chắc muốn xoá " + label + " này không?")) return;
+
+      let r, data;
+      try {
+        r = await fetch(API_BASE + "/api/attributes/" + id, {
+          method: "DELETE",
+        });
+        data = await r.json().catch(() => ({}));
+      } catch (err) {
+        console.error(err);
+        alert("Không kết nối được tới server.");
+        return;
+      }
+
+      if (!r.ok) {
+        alert(data.error || "Lỗi khi xoá phân loại");
+        return;
+      }
+
+      await loadAttributes();
+    }
+
+    function attachRowActions() {
+      document.querySelectorAll("button[data-action]").forEach((btn) => {
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          const action = btn.getAttribute("data-action");
+          const type = btn.getAttribute("data-type");
+          const id = btn.getAttribute("data-id");
+          if (action === "edit") {
+            openEditAttributeModal(id, type);
+          } else if (action === "delete") {
+            await deleteAttribute(id, type);
+          } else if (action === "toggle-status") {
+            await toggleStatus(id, type);
+          }
+        };
+      });
+    }
+
+    // Đồng bộ picker & text trong popup màu
+    function setupEditColorSync() {
+      const picker = document.getElementById("editAttrColorPicker");
+      const text = document.getElementById("editAttrColorText");
+      if (!picker || !text) return;
+
+      picker.addEventListener("input", () => {
+        text.value = picker.value;
+      });
+
+      text.addEventListener("input", () => {
+        let v = (text.value || "").trim();
+        if (v && !v.startsWith("#")) v = "#" + v;
+        if (v.length === 7) {
+          picker.value = v;
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      document
+        .getElementById("btnAddColor")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          handleAddAttribute("color");
+        });
+
+      document
+        .getElementById("btnAddSize")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          handleAddAttribute("size");
+        });
+
+      document
+        .getElementById("btnAddCategory")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          handleAddAttribute("category");
+        });
+
+      // Nút lưu trong popup sửa
+      document
+        .getElementById("btnSaveAttrEdit")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          saveEditAttribute();
+        });
+
+      // Nút đóng popup (data-close)
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-close");
+          closeModal(id);
+          editingAttr = null;
+        });
+      });
+
+      setupEditColorSync();
+      await loadAttributes();
+    });
+  </script>
+</body>
+
+</html>

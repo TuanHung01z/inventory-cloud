@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload ảnh sản phẩm</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        Quản Lý HT.ver1
+      </div>
+
+      <div class="nav-group-title">Chức năng</div>
+
+      <div class="nav">
+        <!-- Sản phẩm -->
+        <a href="/index.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                <path d="M4 10h16M10 4v16"></path>
+              </svg>
+            </span>
+            Sản phẩm
+          </button>
+        </a>
+
+        <!-- Nhập / Xuất kho -->
+        <a href="/movements.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon">
+              <span class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M8 5v10M8 5l-3 3M8 5l3 3"></path>
+                  <path d="M16 19V9M16 19l-3-3M16 19l3-3"></path>
+                </svg>
+              </span>
+            </span>
+            Nhập / Xuất kho
+          </button>
+        </a>
+
+        <!-- Phân loại -->
+        <a href="/attributes.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3a8 8 0 0 0-8 8 5 5 0 0 0 5 5h1.2a1.8 1.8 0 0 1 0 3.6A8 8 0 0 0 20 13 8 8 0 0 0 12 3z">
+                </path>
+                <circle cx="9" cy="10" r="0.9"></circle>
+                <circle cx="12" cy="8" r="0.9"></circle>
+                <circle cx="15" cy="10" r="0.9"></circle>
+                <circle cx="15" cy="13" r="0.9"></circle>
+              </svg>
+            </span>
+            Phân loại
+          </button>
+        </a>
+
+        <!-- Lịch sử -->
+        <a href="/history.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            Lịch sử
+          </button>
+        </a>
+
+        <!-- Upload ảnh -->
+        <a href="/upload.html" style="text-decoration:none;">
+          <button class="nav-btn active">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 4v9"></path>
+                <path d="M9 7l3-3 3 3"></path>
+                <rect x="5" y="14" width="14" height="6" rx="2"></rect>
+              </svg>
+            </span>
+            Upload ảnh
+          </button>
+        </a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <h1>Upload ảnh sản phẩm</h1>
+      <p class="subtitle">
+        Ảnh sẽ được lưu vào thư mục <code>/uploads/</code>.
+      </p>
+
+      <!-- FORM UPLOAD -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Upload ảnh mới</div>
+            <div class="card-subtitle">Có thể chọn nhiều ảnh cùng lúc.</div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <form id="uploadForm">
+            <div class="form-grid">
+              <div>
+                <label>Chọn ảnh *</label>
+
+                <!-- FILE INPUT ĐẸP -->
+                <div class="file-input">
+                  <input type="file" id="imageInput" name="image" accept="image/*" multiple />
+
+                  <!-- Nút đẹp để mở chọn file -->
+                  <label for="imageInput" class="file-input-trigger">
+                    <span class="btn-icon">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M12 15V5" stroke-linecap="round" />
+                        <path d="M8 9l4-4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+                        <rect x="4" y="15" width="16" height="4" rx="2" />
+                      </svg>
+                    </span>
+                    <span>Chọn ảnh</span>
+                  </label>
+
+                  <!-- Text hiển thị trạng thái / tên file -->
+                  <span id="fileInputText" class="file-input-text">
+                    Không có tệp nào được chọn
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-footer">
+              <button type="submit" class="btn-primary">
+                <span class="btn-icon">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 15V5" stroke-linecap="round" />
+                    <path d="M8 9l4-4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+                    <rect x="4" y="15" width="16" height="4" rx="2" />
+                  </svg>
+                </span>
+                <span>Upload</span>
+              </button>
+            </div>
+
+            <div id="uploadStatus" class="muted mt-8"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- DANH SÁCH ẢNH -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Thư viện ảnh đã upload</div>
+            <div class="card-subtitle">Bấm vào ảnh để chọn, có thể xoá nhiều ảnh.</div>
+          </div>
+
+          <div class="btn-row">
+            <!-- Tải lại -->
+            <button class="btn-outline btn-small" id="btnReload">
+              <span class="btn-icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 11a7 7 0 0 1 12-3" stroke-linecap="round" />
+                  <path d="M17 5v4h-4" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M19 13a7 7 0 0 1-12 3" stroke-linecap="round" />
+                  <path d="M7 19v-4h4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span>Tải lại</span>
+            </button>
+
+            <!-- Bỏ chọn -->
+            <button class="btn-outline btn-small" id="btnClearSelection">
+              <span class="btn-icon">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="8" />
+                  <path d="M9 9l6 6m0-6l-6 6" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span>Bỏ chọn</span>
+            </button>
+
+            <!-- Xóa ảnh đã chọn -->
+            <button class="btn-danger btn-small" id="btnDeleteSelected" disabled>
+              <span class="btn-icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M9 5h6" stroke-linecap="round" />
+                  <path d="M10 5h4a1 1 0 0 1 1 1v1H9V6a1 1 0 0 1 1-1z" />
+                  <path d="M6 7h12" stroke-linecap="round" />
+                  <path d="M9 7v10a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V7" />
+                </svg>
+              </span>
+              <span>Xóa ảnh đã chọn</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div id="imageList" class="image-grid"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const imageList = document.getElementById("imageList");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const btnReload = document.getElementById("btnReload");
+    const btnClearSelection = document.getElementById("btnClearSelection");
+    const btnDeleteSelected = document.getElementById("btnDeleteSelected");
+    const fileInputText = document.getElementById("fileInputText");
+    const fileInput = document.getElementById("imageInput");
+
+    let selectedUrls = new Set();
+
+    function updateDeleteState() {
+      btnDeleteSelected.disabled = selectedUrls.size === 0;
+    }
+
+    async function fetchImages() {
+      imageList.innerHTML = '<span class="muted">Đang tải...</span>';
+      selectedUrls.clear();
+      updateDeleteState();
+
+      try {
+        const res = await fetch("/api/images");
+        const images = await res.json();
+
+        if (!Array.isArray(images) || images.length === 0) {
+          imageList.innerHTML = '<span class="muted">Chưa có ảnh nào.</span>';
+          return;
+        }
+
+        imageList.innerHTML = "";
+
+        images.forEach((img) => {
+          const card = document.createElement("div");
+          card.className = "image-card";
+          card.dataset.url = img.url;
+
+          const imgEl = document.createElement("img");
+          imgEl.src = img.url;
+          imgEl.className = "image-thumb-large";
+
+          const badge = document.createElement("div");
+          badge.className = "image-card-select-badge";
+          badge.innerHTML = "✓";
+
+          card.appendChild(imgEl);
+          card.appendChild(badge);
+
+          card.addEventListener("click", () => {
+            const url = card.dataset.url;
+            if (selectedUrls.has(url)) {
+              selectedUrls.delete(url);
+              card.classList.remove("selected");
+            } else {
+              selectedUrls.add(url);
+              card.classList.add("selected");
+            }
+            updateDeleteState();
+          });
+
+          imageList.appendChild(card);
+        });
+      } catch (e) {
+        console.error(e);
+        imageList.innerHTML = '<span class="muted">Lỗi tải ảnh.</span>';
+      }
+    }
+
+    // Upload nhiều ảnh
+    async function handleUpload(e) {
+      e.preventDefault();
+      const input = document.getElementById("imageInput");
+      const files = input.files;
+
+      if (!files || !files.length) {
+        uploadStatus.textContent = "Vui lòng chọn ít nhất 1 ảnh.";
+        return;
+      }
+
+      let success = 0;
+      let fail = 0;
+
+      uploadStatus.textContent = `Đang upload ${files.length} ảnh...`;
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+          const res = await fetch("/api/upload-image", {
+            method: "POST",
+            body: formData
+          });
+
+          if (res.ok) {
+            success++;
+          } else {
+            fail++;
+          }
+        } catch (err) {
+          console.error(err);
+          fail++;
+        }
+      }
+
+      if (fail === 0) {
+        uploadStatus.textContent = `Upload thành công ${success}/${files.length} ảnh.`;
+      } else {
+        uploadStatus.textContent = `Upload xong: thành công ${success}, lỗi ${fail}.`;
+      }
+
+      input.value = "";
+      if (fileInputText) {
+        fileInputText.textContent = "Không có tệp nào được chọn";
+      }
+      await fetchImages();
+    }
+
+    async function handleDeleteSelected() {
+      if (selectedUrls.size === 0) return;
+      if (!confirm(`Xóa ${selectedUrls.size} ảnh đã chọn?`)) return;
+
+      try {
+        const res = await fetch("/api/images", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ urls: [...selectedUrls] })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || data.ok === false) {
+          alert(data.error || "Xóa ảnh thất bại.");
+          return;
+        }
+
+        selectedUrls.clear();
+        updateDeleteState();
+        fetchImages();
+      } catch (e) {
+        console.error(e);
+        alert("Lỗi khi xóa ảnh.");
+      }
+    }
+
+    function handleClearSelection() {
+      selectedUrls.clear();
+      document.querySelectorAll(".image-card.selected").forEach((c) =>
+        c.classList.remove("selected")
+      );
+      updateDeleteState();
+    }
+
+    // Cập nhật text khi chọn file
+    if (fileInput && fileInputText) {
+      fileInput.addEventListener("change", () => {
+        const files = fileInput.files;
+        if (!files || !files.length) {
+          fileInputText.textContent = "Không có tệp nào được chọn";
+          return;
+        }
+        if (files.length === 1) {
+          fileInputText.textContent = files[0].name;
+        } else {
+          fileInputText.textContent = `${files.length} tệp đã được chọn`;
+        }
+      });
+    }
+
+    document.getElementById("uploadForm").addEventListener("submit", handleUpload);
+    btnReload.addEventListener("click", fetchImages);
+    btnDeleteSelected.addEventListener("click", handleDeleteSelected);
+    btnClearSelection.addEventListener("click", handleClearSelection);
+
+    fetchImages();
+  </script>
+</body>
+
+</html>

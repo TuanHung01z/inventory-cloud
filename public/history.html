@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Kho Online - Lịch sử nhập / xuất</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        Quản Lý HT.ver1
+      </div>
+
+      <div class="nav-group-title">Chức năng</div>
+      <div class="nav">
+        <a href="/index.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="4" width="16" height="16" rx="3"></rect>
+                <path d="M4 10h16M10 4v16"></path>
+              </svg>
+            </span>
+            Sản phẩm
+          </button>
+        </a>
+
+        <a href="/movements.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 5v10M8 5l-3 3M8 5l3 3"></path>
+                <path d="M16 19V9M16 19l-3-3M16 19l3-3"></path>
+              </svg>
+            </span>
+            Nhập / Xuất kho
+          </button>
+        </a>
+
+        <a href="/attributes.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3a8 8 0 0 0-8 8 5 5 0 0 0 5 5h1.2a1.8 1.8 0 0 1 0 3.6A8 8 0 0 0 20 13 8 8 0 0 0 12 3z">
+                </path>
+                <circle cx="9" cy="10" r="0.9"></circle>
+                <circle cx="12" cy="8" r="0.9"></circle>
+                <circle cx="15" cy="10" r="0.9"></circle>
+                <circle cx="15" cy="13" r="0.9"></circle>
+              </svg>
+            </span>
+            Phân loại
+          </button>
+        </a>
+
+        <a href="/history.html" style="text-decoration:none;">
+          <button class="nav-btn active">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8"></circle>
+                <path d="M12 8v4l3 2"></path>
+              </svg>
+            </span>
+            Lịch sử
+          </button>
+        </a>
+
+        <a href="/upload.html" style="text-decoration:none;">
+          <button class="nav-btn">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 4v9"></path>
+                <path d="M9 7l3-3 3 3"></path>
+                <rect x="5" y="14" width="14" height="6" rx="2"></rect>
+              </svg>
+            </span>
+            Upload ảnh
+          </button>
+        </a>
+      </div>
+    </aside>
+
+
+
+    <main class="main">
+      <h1>Lịch sử nhập / xuất kho</h1>
+      <p class="subtitle">Danh sách phiếu đã ghi nhận, sắp xếp mới nhất ở trên.</p>
+
+      <section class="screen active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Các phiếu nhập / xuất</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:40px;">#</th>
+                  <th>THỜI GIAN</th>
+                  <th>SẢN PHẨM</th>
+                  <th>PHÂN LOẠI</th>
+                  <th>LOẠI</th>
+                  <th>SỐ LƯỢNG</th>
+                  <th>NGƯỜI THỰC HIỆN</th>
+                  <th>GHI CHÚ</th>
+                </tr>
+              </thead>
+              <tbody id="movementTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = "";
+    function renderMovements(list) {
+      const tbody = document.getElementById("movementTableBody");
+      tbody.innerHTML = "";
+      list.forEach((mv, idx) => {
+        const tr = document.createElement("tr");
+        const tdIndex = document.createElement("td"); tdIndex.textContent = idx + 1; tdIndex.style.textAlign = "center";
+        const tdTime = document.createElement("td"); tdTime.textContent = mv.time ? new Date(mv.time).toLocaleString("vi-VN") : "";
+        const tdProd = document.createElement("td"); tdProd.textContent = mv.productName || "(Đã xoá)";
+        const tdVar = document.createElement("td"); tdVar.textContent = mv.variant || "";
+        const tdType = document.createElement("td");
+        const isIn = mv.type === "IN";
+        tdType.innerHTML = isIn ? '<span class="pill"><span class="pill-dot"></span>Nhập kho</span>' : '<span class="pill pill-danger"><span class="pill-danger-dot pill-dot"></span>Xuất kho</span>';
+        const tdQty = document.createElement("td"); tdQty.textContent = mv.quantity; tdQty.style.textAlign = "center";
+        const tdUser = document.createElement("td"); tdUser.textContent = mv.user || "";
+        const tdNote = document.createElement("td"); tdNote.textContent = mv.note || "";
+        tr.append(tdIndex, tdTime, tdProd, tdVar, tdType, tdQty, tdUser, tdNote);
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadMovements() {
+      const r = await fetch(API_BASE + "/api/movements");
+      const list = await r.json();
+      renderMovements(list);
+    }
+
+    document.addEventListener("DOMContentLoaded", loadMovements);
+  </script>
+</body>
+
+</html>
