@@ -409,7 +409,7 @@
         const colorInput = document.getElementById("inputColorCode");
         let color_code = colorInput ? (colorInput.value || "").trim() : "";
         if (!color_code) color_code = null;
-        body.colorCode = color_code;
+        body.color_code = color_code;
       }
 
       let r, data;
@@ -505,7 +505,7 @@
         let hex = (text.value || "").trim();
         if (hex && !hex.startsWith("#")) hex = "#" + hex;
         if (!hex) hex = null;
-        body.colorCode = hex;
+        body.color_code = hex;
       }
 
       let r, data;
