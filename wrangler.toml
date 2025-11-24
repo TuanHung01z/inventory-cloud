@@ -1,4 +1,4 @@
-name = "inventory-api"
+name = "kho-online-git"
 main = "src/worker.js"
 compatibility_date = "2025-01-01"
 
