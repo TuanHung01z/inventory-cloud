@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <title>Upload ảnh sản phẩm</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -20,7 +20,7 @@
 
       <div class="nav">
         <!-- Sản phẩm -->
-        <a href="/index.html" style="text-decoration:none;">
+        <a href="index.html" style="text-decoration:none;">
           <button class="nav-btn">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -33,7 +33,7 @@
         </a>
 
         <!-- Nhập / Xuất kho -->
-        <a href="/movements.html" style="text-decoration:none;">
+        <a href="movements.html" style="text-decoration:none;">
           <button class="nav-btn">
             <span class="icon">
               <span class="icon" aria-hidden="true">
@@ -48,7 +48,7 @@
         </a>
 
         <!-- Phân loại -->
-        <a href="/attributes.html" style="text-decoration:none;">
+        <a href="attributes.html" style="text-decoration:none;">
           <button class="nav-btn">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -65,7 +65,7 @@
         </a>
 
         <!-- Lịch sử -->
-        <a href="/history.html" style="text-decoration:none;">
+        <a href="history.html" style="text-decoration:none;">
           <button class="nav-btn">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
         </a>
 
         <!-- Upload ảnh -->
-        <a href="/upload.html" style="text-decoration:none;">
+        <a href="upload.html" style="text-decoration:none;">
           <button class="nav-btn active">
             <span class="icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -213,6 +213,9 @@
   </div>
 
   <script>
+    // <<<<<< THÊM DÒNG NÀY
+    const API_BASE = "https://inventory-api.phamhungpv1104.workers.dev";
+
     const imageList = document.getElementById("imageList");
     const uploadStatus = document.getElementById("uploadStatus");
     const btnReload = document.getElementById("btnReload");
@@ -233,7 +236,8 @@
       updateDeleteState();
 
       try {
-        const res = await fetch("/api/images");
+        // ĐỔI /api/images -> API_BASE + "/api/images"
+        const res = await fetch(API_BASE + "/api/images");
         const images = await res.json();
 
         if (!Array.isArray(images) || images.length === 0) {
@@ -249,7 +253,7 @@
           card.dataset.url = img.url;
 
           const imgEl = document.createElement("img");
-          imgEl.src = img.url;
+          imgEl.src = API_BASE + img.url;
           imgEl.className = "image-thumb-large";
 
           const badge = document.createElement("div");
@@ -300,7 +304,8 @@
         formData.append("image", file);
 
         try {
-          const res = await fetch("/api/upload-image", {
+          // ĐỔI /api/upload-image -> API_BASE + "/api/upload-image"
+          const res = await fetch(API_BASE + "/api/upload-image", {
             method: "POST",
             body: formData
           });
@@ -334,7 +339,8 @@
       if (!confirm(`Xóa ${selectedUrls.size} ảnh đã chọn?`)) return;
 
       try {
-        const res = await fetch("/api/images", {
+        // ĐỔI /api/images -> API_BASE + "/api/images"
+        const res = await fetch(API_BASE + "/api/images", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ urls: [...selectedUrls] })

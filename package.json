@@ -1,18 +1,12 @@
 {
-  "name": "inventory-web",
+  "name": "inventory-cf",
   "version": "1.0.0",
-  "main": "server.js",
+  "type": "module",
+  "devDependencies": {
+    "wrangler": "^3.50.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^5.1.0",
-    "multer": "^2.0.2",
-    "sqlite3": "^5.1.7"
-  },
-  "description": ""
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  }
 }

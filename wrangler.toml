@@ -1,0 +1,12 @@
+name = "inventory-api"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "inventory_db"
+database_id = "d831b2b3-5512-461d-9ae6-e312114e5a78"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "inventory-images"
